@@ -1,13 +1,7 @@
 from numbers import Number
 
 
-class SurfaceWithOnlyArea:
-    def __init__(self, area):
-        assert isinstance(area, Number), 'Input "area" needs to be numeric.'
-        self.area = area
-
-
-class Surface(SurfaceWithOnlyArea):
+class Surface:
     def __init__(self, area=None, length=None, width=None):
         if area is None:
             assert length is not None and width is not None, 'Input either "area" or "length" and "width".'
@@ -16,6 +10,7 @@ class Surface(SurfaceWithOnlyArea):
             area = length * width
         else:
             assert length is None and width is None, 'Input either "area" or "length" and "width".'
-        super().__init__(area)
+            assert isinstance(area, Number), 'Input "area" needs to be numeric.'
+        self.area = area
         self.length = length
         self.width = width
