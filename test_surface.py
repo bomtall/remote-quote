@@ -57,3 +57,17 @@ def test_surface_error(args, kwargs, error_type, error_message):
 def test_surface_coverage_adjustment(args, kwargs, expected):
     s = surface.Surface(*args, **kwargs)
     assert s.coverage_adjustment == expected
+
+
+# TODO write tests for wall and ceiling
+
+def test_get_total_surface_area():
+    wall1 = surface.Wall(10)
+    wall2 = surface.Wall(10)
+    wall3 = surface.Wall(8)
+    wall4 = surface.Wall(8)
+    ceiling1 = surface.Ceiling(12)
+    surfaces = (wall1, wall2, wall3, wall4, ceiling1)
+
+    total_surface_area = surface.get_total_surface_area(surfaces)
+    assert total_surface_area == 48

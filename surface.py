@@ -28,3 +28,22 @@ class Surface:
         self.length = length
         self.width = width
         self.coverage_adjustment = coverage_adjustment
+
+
+class Wall(Surface):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
+class Ceiling(Surface):
+    def __init__(self, *args, coverage_adjustment=None, **kwargs):
+        if coverage_adjustment is None:
+            coverage_adjustment = 1.1
+        super().__init__(*args, **kwargs, coverage_adjustment=coverage_adjustment)
+
+
+def get_total_surface_area(surfaces):
+    total_surface_area = 0
+    for surface in surfaces:
+        total_surface_area += surface.area
+    return total_surface_area
