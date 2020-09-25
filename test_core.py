@@ -88,3 +88,28 @@ def test_painting_surface():
 
     paint_price = job.get_paint_price()
     assert paint_price == 60
+
+    labour_price = job.get_labour_price()
+    assert labour_price == 80
+    total_price = job.get_total_price()
+    assert total_price == 140
+
+
+
+
+#TODO parameterise and separate tests for each function
+
+def test_job():
+
+    painting_surface_1 = core.PaintingSurface(core.Wall(8), core.Paint(30, 5, 17))
+    painting_surface_2 = core.PaintingSurface(core.Wall(10), core.Paint(30, 5, 17))
+    painting_surface_3 = core.PaintingSurface(core.Ceiling(20), core.Paint(30, 5, 17))
+
+    job_1 = core.Job([painting_surface_1, painting_surface_2, painting_surface_3])
+    assert job_1.get_paint_price() == 120
+
+    assert job_1.get_labour_price() == 160
+
+    assert job_1.get_total_price() == 280
+
+    ...

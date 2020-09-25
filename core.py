@@ -77,11 +77,17 @@ class Paint:
 # ======================================================================================================================
 # JOB
 
+#TODO add validation for inputs to painting surface
 
 class PaintingSurface:
-    def __init__(self, surface, paint):
+    def __init__(self, surface, paint, labour_price_msq=None):
+        if labour_price_msq is None:
+            labour_price_msq = 4
+
         self.surface = surface
         self.paint = paint
+        self.labour_price_msq = labour_price_msq
+
 
     def get_units_of_paint(self):
         units_of_paint = math.ceil(self.surface.area / self.paint.coverage)
@@ -91,3 +97,45 @@ class PaintingSurface:
         paint_price = self.get_units_of_paint() * self.paint.price
         return paint_price
 
+    def get_labour_price(self):
+        labour_price = self.surface.area * self.labour_price_msq * self.surface.coverage_adjustment
+        return labour_price
+
+    def get_total_price(self):
+        total_price = self.get_labour_price() + self.get_paint_price()
+        return total_price
+
+    def get_breakdown(self):
+
+        breakdown = dict(
+            total_price = self.get_total_price(),
+            labour_price = self.get_labour_price(),
+            paint_price = self.get_paint_price(),
+            units_of_paint = self.get_units_of_paint(),
+        )
+        return breakdown
+
+
+class Job:
+     def __init__(self, painting_surfaces):
+         self.painting_surfaces = painting_surfaces
+
+     def get_paint_price(self):
+         job_paint_price = 0
+         for painting_surface in self.painting_surfaces:
+             job_paint_price += painting_surface.get_paint_price()
+         return job_paint_price
+
+     def get_labour_price(self):
+         job_labour_price = 0
+         for painting_surface in self.painting_surfaces:
+             job_labour_price += painting_surface.get_labour_price()
+         return job_labour_price
+
+     def get_total_price(self):
+         job_total_price = 0
+         for painting_surface in self.painting_surfaces:
+             job_total_price += painting_surface.get_total_price()
+         return job_total_price
+
+#TODO worry about units of paint and paint price when adding up for same paint
