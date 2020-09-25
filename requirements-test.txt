@@ -1,2 +1,3 @@
 pytest
 pytest-pycharm
+-r requirements.txt
