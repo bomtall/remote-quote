@@ -1,5 +1,5 @@
 import pytest
-import surface
+import core
 
 
 @pytest.mark.parametrize(
@@ -18,7 +18,7 @@ import surface
     ],
 )
 def test_surface_area(args, kwargs, expected):
-    s = surface.Surface(*args, **kwargs)
+    s = core.Surface(*args, **kwargs)
     assert s.area == expected
 
 
@@ -44,7 +44,7 @@ def test_surface_area(args, kwargs, expected):
 )
 def test_surface_error(args, kwargs, error_type, error_message):
     with pytest.raises(error_type) as e:
-        surface.Surface(*args, **kwargs)
+        core.Surface(*args, **kwargs)
     assert e.value.args[0] == error_message
 
 
@@ -56,7 +56,7 @@ def test_surface_error(args, kwargs, error_type, error_message):
     ],
 )
 def test_surface_coverage_adjustment(args, kwargs, expected):
-    s = surface.Surface(*args, **kwargs)
+    s = core.Surface(*args, **kwargs)
     assert s.coverage_adjustment == expected
 
 
@@ -64,12 +64,27 @@ def test_surface_coverage_adjustment(args, kwargs, expected):
 # TODO parameterise function
 
 def test_get_total_surface_area():
-    wall1 = surface.Wall(10)
-    wall2 = surface.Wall(10)
-    wall3 = surface.Wall(8)
-    wall4 = surface.Wall(8)
-    ceiling1 = surface.Ceiling(12)
+    wall1 = core.Wall(10)
+    wall2 = core.Wall(10)
+    wall3 = core.Wall(8)
+    wall4 = core.Wall(8)
+    ceiling1 = core.Ceiling(12)
     surfaces = (wall1, wall2, wall3, wall4, ceiling1)
 
-    total_surface_area = surface.get_total_surface_area(surfaces)
+    total_surface_area = core.get_total_surface_area(surfaces)
     assert total_surface_area == 48
+
+
+#TODO write tests for paint class
+
+def test_painting_surface():
+    wall = core.Wall(20)
+    paint = core.Paint(30, 5, 17)
+
+    job = core.PaintingSurface(wall, paint)
+
+    units_of_paint = job.get_units_of_paint()
+    assert units_of_paint == 2
+
+    paint_price = job.get_paint_price()
+    assert paint_price == 60
