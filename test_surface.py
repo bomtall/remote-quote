@@ -14,6 +14,7 @@ import surface
         # Testing giving length and width
         ([None, 2, 2], dict(), 4),
         ([], {'length': 2, 'width': 2},  4),
+        ([None, 2], {'width' : 2}, 4),
     ],
 )
 def test_surface_area(args, kwargs, expected):
@@ -60,6 +61,7 @@ def test_surface_coverage_adjustment(args, kwargs, expected):
 
 
 # TODO write tests for wall and ceiling
+# TODO parameterise function
 
 def test_get_total_surface_area():
     wall1 = surface.Wall(10)
