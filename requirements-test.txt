@@ -1,3 +1,4 @@
 pytest
+pytest-tornasync
 pytest-pycharm
 -r requirements.txt
