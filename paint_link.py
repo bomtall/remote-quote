@@ -3,6 +3,8 @@ import requests
 from bs4 import BeautifulSoup
 import json
 
+#TODO create better tests
+
 def get_price(url, index):
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
