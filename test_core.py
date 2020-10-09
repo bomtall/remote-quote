@@ -60,22 +60,112 @@ def test_surface_coverage_adjustment(args, kwargs, expected):
     assert s.coverage_adjustment == expected
 
 
-# TODO write tests for wall and ceiling
-# TODO parameterise function
+# TODO write tests for wall and ceiling(done)
 
-def test_get_total_surface_area():
-    wall1 = core.Wall(10)
-    wall2 = core.Wall(10)
-    wall3 = core.Wall(8)
-    wall4 = core.Wall(8)
-    ceiling1 = core.Ceiling(12)
-    surfaces = (wall1, wall2, wall3, wall4, ceiling1)
+@pytest.mark.parametrize(
+    'args, kwargs, expected',
+    [
+        # Testing different numeric inputs
+        ([1], dict(), 1),
+        ([1.0], dict(), 1),
+        ([1/2], dict(), 0.5),
+        # Testing keyword arguments
+        ([], {'area': 1}, 1),
+        # Testing giving length and width
+        ([None, 2, 2], dict(), 4),
+        ([], {'length': 2, 'width': 2},  4),
+        ([None, 2], {'width' : 2}, 4),
+    ],
+)
+def test_wall(args, kwargs, expected):
+    w = core.Wall(*args, **kwargs)
+    assert w.area == expected
 
-    total_surface_area = core.get_total_surface_area(surfaces)
-    assert total_surface_area == 48
+
+@pytest.mark.parametrize(
+    'args, kwargs, expected',
+    [
+        # Testing different numeric inputs
+        ([1], dict(), 1),
+        ([1.0], dict(), 1),
+        ([1/2], dict(), 0.5),
+        # Testing keyword arguments
+        ([], {'area': 1}, 1),
+        # Testing giving length and width
+        ([None, 2, 2], dict(), 4),
+        ([], {'length': 2, 'width': 2},  4),
+        ([None, 2], {'width' : 2}, 4),
+    ],
+)
+
+def test_ceiling(args, kwargs, expected):
+    c = core.Ceiling(*args, **kwargs)
+    assert c.area == expected
+
+    # TODO parameterise function(done)
+
+@pytest.mark.parametrize(
+    'args, kwargs, expected',
+    [
+        #testing passing in list and dictionary
+        ([[core.Wall(10)]], dict(), 10),
+        ([[core.Wall(20), core.Wall(40)]], dict(), 60),
+        ([[core.Ceiling(10)]], dict(), 10),
+        ([[core.Wall(15), core.Ceiling(15)]], dict(), 30),
+        ([], {'surfaces' : [core.Wall(10), core.Ceiling(15)]}, 25),
+        ([[core.Wall(20), core.Ceiling(40), core.Wall(20), core.Wall(10), core.Wall(10), core.Ceiling(10),]],
+         dict(), 110)
+    ]
+)
+
+def test_get_total_surface_area(args, kwargs, expected):
+    sa = core.get_total_surface_area(*args, **kwargs)
+    assert sa == expected
 
 
 #TODO write tests for paint class
+
+@pytest.mark.parametrize(
+    'args, kwargs, expected',
+    [
+        ([30,5,17], dict(), {'price' : 30, 'unit' : 5, 'coverage' : 17})
+
+    ]
+)
+def test_paint_class(args, kwargs, expected):
+    properties = core.Paint(*args, **kwargs)
+    assert properties.price == expected['price']
+    assert properties.unit == expected['unit']
+    assert properties.coverage == expected['coverage']
+
+@pytest.mark.parametrize(
+    'args, kwargs, error_type, error_message',
+    [
+        # Testing non numeric inputs
+        (['a', 5, 17], dict(), AssertionError, 'Input "price" needs to be numeric.'),
+        ([30, 'a', 2], dict(), AssertionError, 'Input "unit" needs to be numeric.'),
+        ([30, 2, '2'], dict(), AssertionError, 'Input "coverage" needs to be numeric.'),
+
+    ]
+)
+def test_paintclass_error(args, kwargs, error_type, error_message):
+    with pytest.raises(error_type) as e:
+        core.Paint(*args, **kwargs)
+    assert e.value.args[0] == error_message
+
+
+@pytest.mark.parametrize(
+    'args, kwargs, expected',
+    [
+        ([core.Wall(10), core.Paint(30, 5, 17)], dict(), 70),
+        ([], {'surface' : core.Wall(50), 'paint' : core.Paint(30, 5, 17)}, 290)
+    ]
+)
+
+def test_painting_surface_class(args, kwargs, expected):
+    total = core.PaintingSurface(*args, **kwargs)
+    assert total.get_total_price() == expected
+
 
 def test_painting_surface():
     wall = core.Wall(20)

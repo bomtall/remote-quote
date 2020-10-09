@@ -105,6 +105,7 @@ class PaintingSurface:
         total_price = self.get_labour_price() + self.get_paint_price()
         return total_price
 
+
     def get_breakdown(self):
 
         breakdown = dict(
