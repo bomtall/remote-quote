@@ -88,7 +88,7 @@ class PaintingSurface:
         self.paint = paint
         self.labour_price_msq = labour_price_msq
 
-
+#TODO make calculation reflect unit and coverage properly
     def get_units_of_paint(self):
         units_of_paint = math.ceil(self.surface.area / self.paint.coverage)
         return units_of_paint
