@@ -16,7 +16,7 @@ def get_price(url, index):
 
 class Matt(core.Paint):
     def __init__(self,):
-        coverage = 85
+        coverage = 50
         unit = 5
         #price = get_price("https://www.duluxdecoratorcentre.co.uk/dulux-trade-vinyl-matt", 19)
         price = 37.87
@@ -26,7 +26,7 @@ class Matt(core.Paint):
 
 class Diamond(core.Paint):
     def __init__(self):
-        coverage = 85
+        coverage = 50
         unit = 5
         #price = get_price("https://www.duluxdecoratorcentre.co.uk/dulux-trade-diamond-matt", 6)
         price = 50.03
