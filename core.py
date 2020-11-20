@@ -13,9 +13,10 @@ class Surface:
             area=None,
             length=None,
             width=None,
-            coverage_adjustment=None,
+            labour_adjustment=None,
+            substrate=None,
     ):
-        print('Hello')
+
         if area is None:
             assert length is not None and width is not None, 'Input either "area" or "length" and "width".'
             assert isinstance(length, Number), 'Input "length" needs to be numeric.'
@@ -25,15 +26,19 @@ class Surface:
             assert length is None and width is None, 'Input either "area" or "length" and "width".'
             assert isinstance(area, Number), 'Input "area" needs to be numeric.'
 
-        if coverage_adjustment is None:
-            coverage_adjustment = 1
+        if labour_adjustment is None:
+            labour_adjustment = 1
         else:
-            assert isinstance(coverage_adjustment, Number), 'Input "coverage_adjustment" needs to be numeric.'
+            assert isinstance(labour_adjustment, Number), 'Input "labour_adjustment" needs to be numeric.'
+
+        if substrate is None:
+            substrate = PrePaintedEmulsion()
 
         self.area = area
         self.length = length
         self.width = width
-        self.coverage_adjustment = coverage_adjustment
+        self.labour_adjustment = labour_adjustment
+        self.substrate = substrate
 
 
 class Wall(Surface):
@@ -42,53 +47,53 @@ class Wall(Surface):
 
 
 class Ceiling(Surface):
-    def __init__(self, *args, coverage_adjustment=None, **kwargs):
-        if coverage_adjustment is None:
-            coverage_adjustment = 1.1
-        super().__init__(*args, **kwargs, coverage_adjustment=coverage_adjustment)
+    def __init__(self, *args, labour_adjustment=None, **kwargs):
+        if labour_adjustment is None:
+            labour_adjustment = 1.1
+        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment)
 
 
 class Door(Surface):
-    def __init__(self, *args, coverage_adjustment=None, **kwargs):
-        if coverage_adjustment is None:
-            coverage_adjustment = 1.1
-        super().__init__(*args, **kwargs, coverage_adjustment=coverage_adjustment)
+    def __init__(self, *args, labour_adjustment=None, **kwargs):
+        if labour_adjustment is None:
+            labour_adjustment = 1.1
+        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment)
 
 class Doorframe(Surface):
-    def __init__(self, *args, coverage_adjustment=None, **kwargs):
-        if coverage_adjustment is None:
-            coverage_adjustment = 1.1
-        super().__init__(*args, **kwargs, coverage_adjustment=coverage_adjustment)
+    def __init__(self, *args, labour_adjustment=None, **kwargs):
+        if labour_adjustment is None:
+            labour_adjustment = 1.1
+        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment)
 
 class Skirtingboard(Surface):
-    def __init__(self, *args, coverage_adjustment=None, **kwargs):
-        if coverage_adjustment is None:
-            coverage_adjustment = 1.1
-        super().__init__(*args, **kwargs, coverage_adjustment=coverage_adjustment)
+    def __init__(self, *args, labour_adjustment=None, **kwargs):
+        if labour_adjustment is None:
+            labour_adjustment = 1.1
+        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment)
 
 class Window(Surface):
-    def __init__(self, *args, coverage_adjustment=None, **kwargs):
-        if coverage_adjustment is None:
-            coverage_adjustment = 1.1
-        super().__init__(*args, **kwargs, coverage_adjustment=coverage_adjustment)
+    def __init__(self, *args, labour_adjustment=None, **kwargs):
+        if labour_adjustment is None:
+            labour_adjustment = 1.1
+        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment)
 
 class Windowsill(Surface):
-    def __init__(self, *args, coverage_adjustment=None, **kwargs):
-        if coverage_adjustment is None:
-            coverage_adjustment = 1.1
-        super().__init__(*args, **kwargs, coverage_adjustment=coverage_adjustment)
+    def __init__(self, *args, labour_adjustment=None, **kwargs):
+        if labour_adjustment is None:
+            labour_adjustment = 1.1
+        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment)
 
 class Spindle(Surface):
-    def __init__(self, *args, coverage_adjustment=None, **kwargs):
-        if coverage_adjustment is None:
-            coverage_adjustment = 1.1
-        super().__init__(*args, **kwargs, coverage_adjustment=coverage_adjustment)
+    def __init__(self, *args, labour_adjustment=None, **kwargs):
+        if labour_adjustment is None:
+            labour_adjustment = 1.1
+        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment)
 
 class ElaborateCornice(Surface):
-    def __init__(self, *args, coverage_adjustment=None, **kwargs):
-        if coverage_adjustment is None:
-            coverage_adjustment = 1.1
-        super().__init__(*args, **kwargs, coverage_adjustment=coverage_adjustment)
+    def __init__(self, *args, labour_adjustment=None, **kwargs):
+        if labour_adjustment is None:
+            labour_adjustment = 1.1
+        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment)
 
 class Substrate:
     def __init__(
@@ -101,6 +106,18 @@ class Substrate:
         self.num_coats = num_coats
         self.porosity = porosity
         self.condition = condition
+        self.preparation_factor = self.get_preparation_factor()
+        self.coverage_adjustment = 1
+
+    def get_preparation_factor(self):
+        if self.condition == 'poor':
+            preparation_factor = 1.1
+        elif self.condition == 'okay':
+            preparation_factor = 1.05
+        else:
+            preparation_factor = 1
+
+        return preparation_factor
 
 class Plaster(Substrate):
     def __init__(self, *args, num_coats=None, **kwargs):
@@ -108,7 +125,61 @@ class Plaster(Substrate):
             num_coats = 2
 
         super().__init__(*args, **kwargs, num_coats=num_coats)
+        self.coverage_adjustment = 1.2
 
+class PrePaintedEmulsion(Substrate):
+    def __init__(self, *args, num_coats=None, condition=None, **kwargs):
+        if num_coats is None and condition == 'poor':
+            num_coats = 2
+        elif num_coats is None:
+            num_coats = 1
+
+        super().__init__(*args, **kwargs, num_coats=num_coats, condition=condition)
+        self.coverage_adjustment = 1
+
+class PrePaintedWood(Substrate):
+    def __init__(self, *args, num_coats=None, condition=None, **kwargs):
+        if num_coats is None and condition == 'poor':
+            num_coats = 2
+        elif num_coats is None:
+            num_coats = 1
+
+        super().__init__(*args, **kwargs, num_coats=num_coats, condition=condition)
+        self.coverage_adjustment = 1
+
+class NewLiningPaper(Substrate):
+    def __init__(self, *args, num_coats=None, condition=None, **kwargs):
+        if num_coats is None:
+            num_coats = 2
+        if condition is None:
+            condition = 'good'
+
+        super().__init__(*args, **kwargs, num_coats=num_coats, condition=condition)
+        self.preparation_factor = self.get_preparation_factor()
+        self.coverage_adjustment = 1.2
+
+    # def get_preparation_factor(self):
+    #     if self.condition == 'poor':
+    #         preparation_factor = 4
+    #     elif self.condition == 'okay':
+    #         preparation_factor = 3
+    #     else:
+    #         preparation_factor = 2
+    #
+    #     return preparation_factor
+
+
+
+
+class NewWood(Substrate):
+    def __init__(self, *args, num_coats=None, condition=None, **kwargs):
+        if num_coats is None:
+            num_coats = 3
+        if condition is None:
+            condition = 'good'
+
+        super().__init__(*args, **kwargs, num_coats=num_coats, condition=condition)
+        self.coverage_adjustment = 1
 
 
 
@@ -155,7 +226,7 @@ class PaintingSurface:
 
 #TODO make calculation reflect unit and coverage properly
     def get_units_of_paint(self):
-        units_of_paint = math.ceil(self.surface.area / self.paint.coverage)
+        units_of_paint = math.ceil((self.surface.area / self.paint.coverage) * self.surface.substrate.num_coats)
         return units_of_paint
 
     def get_paint_price(self):
@@ -163,7 +234,7 @@ class PaintingSurface:
         return paint_price
 
     def get_labour_price(self):
-        labour_price = self.surface.area * self.labour_price_msq * self.surface.coverage_adjustment
+        labour_price = self.surface.area * self.labour_price_msq * self.surface.labour_adjustment * self.surface.substrate.num_coats
         return labour_price
 
     def get_total_price(self):

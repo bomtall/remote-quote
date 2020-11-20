@@ -29,7 +29,7 @@ def test_surface_area(args, kwargs, expected):
         (['a'], dict(), AssertionError, 'Input "area" needs to be numeric.'),
         ([None, '2', 2], dict(), AssertionError, 'Input "length" needs to be numeric.'),
         ([None, 2, '2'], dict(), AssertionError, 'Input "width" needs to be numeric.'),
-        ([], dict(area=1, coverage_adjustment='a'), AssertionError, 'Input "coverage_adjustment" needs to be numeric.'),
+        ([], dict(area=1, labour_adjustment='a'), AssertionError, 'Input "labour_adjustment" needs to be numeric.'),
         # Testing when user only inputs two arguments but has to be one or three
         ([1, 2], dict(), AssertionError, 'Input either "area" or "length" and "width".'),
         ([1, None, 2], dict(), AssertionError, 'Input either "area" or "length" and "width".'),
@@ -51,13 +51,13 @@ def test_surface_error(args, kwargs, error_type, error_message):
 @pytest.mark.parametrize(
     'args, kwargs, expected',
     [
-        ([], dict(area=1, coverage_adjustment=1), 1),
+        ([], dict(area=1, labour_adjustment=1), 1),
         ([], dict(area=1), 1),
     ],
 )
-def test_surface_coverage_adjustment(args, kwargs, expected):
+def test_surface_labour_adjustment(args, kwargs, expected):
     s = core.Surface(*args, **kwargs)
-    assert s.coverage_adjustment == expected
+    assert s.labour_adjustment == expected
 
 
 # TODO write tests for wall and ceiling(done)
