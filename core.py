@@ -15,7 +15,7 @@ class Surface:
             width=None,
             coverage_adjustment=None,
     ):
-
+        print('Hello')
         if area is None:
             assert length is not None and width is not None, 'Input either "area" or "length" and "width".'
             assert isinstance(length, Number), 'Input "length" needs to be numeric.'
@@ -46,6 +46,71 @@ class Ceiling(Surface):
         if coverage_adjustment is None:
             coverage_adjustment = 1.1
         super().__init__(*args, **kwargs, coverage_adjustment=coverage_adjustment)
+
+
+class Door(Surface):
+    def __init__(self, *args, coverage_adjustment=None, **kwargs):
+        if coverage_adjustment is None:
+            coverage_adjustment = 1.1
+        super().__init__(*args, **kwargs, coverage_adjustment=coverage_adjustment)
+
+class Doorframe(Surface):
+    def __init__(self, *args, coverage_adjustment=None, **kwargs):
+        if coverage_adjustment is None:
+            coverage_adjustment = 1.1
+        super().__init__(*args, **kwargs, coverage_adjustment=coverage_adjustment)
+
+class Skirtingboard(Surface):
+    def __init__(self, *args, coverage_adjustment=None, **kwargs):
+        if coverage_adjustment is None:
+            coverage_adjustment = 1.1
+        super().__init__(*args, **kwargs, coverage_adjustment=coverage_adjustment)
+
+class Window(Surface):
+    def __init__(self, *args, coverage_adjustment=None, **kwargs):
+        if coverage_adjustment is None:
+            coverage_adjustment = 1.1
+        super().__init__(*args, **kwargs, coverage_adjustment=coverage_adjustment)
+
+class Windowsill(Surface):
+    def __init__(self, *args, coverage_adjustment=None, **kwargs):
+        if coverage_adjustment is None:
+            coverage_adjustment = 1.1
+        super().__init__(*args, **kwargs, coverage_adjustment=coverage_adjustment)
+
+class Spindle(Surface):
+    def __init__(self, *args, coverage_adjustment=None, **kwargs):
+        if coverage_adjustment is None:
+            coverage_adjustment = 1.1
+        super().__init__(*args, **kwargs, coverage_adjustment=coverage_adjustment)
+
+class ElaborateCornice(Surface):
+    def __init__(self, *args, coverage_adjustment=None, **kwargs):
+        if coverage_adjustment is None:
+            coverage_adjustment = 1.1
+        super().__init__(*args, **kwargs, coverage_adjustment=coverage_adjustment)
+
+class Substrate:
+    def __init__(
+            self,
+            num_coats=None,
+            porosity=None,
+            condition=None,
+
+    ):
+        self.num_coats = num_coats
+        self.porosity = porosity
+        self.condition = condition
+
+class Plaster(Substrate):
+    def __init__(self, *args, num_coats=None, **kwargs):
+        if num_coats is None:
+            num_coats = 2
+
+        super().__init__(*args, **kwargs, num_coats=num_coats)
+
+
+
 
 
 def get_total_surface_area(surfaces):
