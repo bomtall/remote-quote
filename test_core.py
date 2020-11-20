@@ -15,6 +15,9 @@ import core
         ([None, 2, 2], dict(), 4),
         ([], {'length': 2, 'width': 2},  4),
         ([None, 2], {'width' : 2}, 4),
+        # Testing initialisation with substrate
+        ([1], dict(labour_adjustment=1.5, substrate=core.Plaster()), 1)
+
     ],
 )
 def test_surface_area(args, kwargs, expected):
@@ -58,6 +61,20 @@ def test_surface_error(args, kwargs, error_type, error_message):
 def test_surface_labour_adjustment(args, kwargs, expected):
     s = core.Surface(*args, **kwargs)
     assert s.labour_adjustment == expected
+
+@pytest.mark.parametrize(
+    'args, kwargs, expected',
+    [
+        # Testing substrate within the surface class
+        ([1], dict(labour_adjustment=1.5, substrate=core.Plaster()), core.Plaster),
+        ([1], dict(substrate=core.NewWood()), core.NewWood),
+        ([1], dict(), core.PrePaintedEmulsion)
+
+    ],
+)
+def test_surface_substrate(args, kwargs, expected):
+    s = core.Surface(*args, **kwargs)
+    assert isinstance(s.substrate, expected)
 
 
 # TODO write tests for wall and ceiling(done)
@@ -123,6 +140,33 @@ def test_get_total_surface_area(args, kwargs, expected):
     assert sa == expected
 
 
+@pytest.mark.parametrize(
+    'args, kwargs, expected',
+    [
+        # Testing substrate
+        ([1], dict(), 1),
+        ([1], dict(condition='poor'), 1.1),
+        ([1], dict(condition='okay'), 1.05)
+    ],
+)
+def test_substrate(args, kwargs, expected):
+    s = core.Substrate(*args, **kwargs)
+    assert s.preparation_factor == expected
+
+@pytest.mark.parametrize(
+    'args, kwargs, error_type, error_message',
+    [
+        # Testing Input validation
+        ([], dict(condition='excellent'), AssertionError, 'Input "condition" needs to be "poor", "okay", "good" or None' ),
+        ([], dict(num_coats='10'), AssertionError, 'Input "num_coats" needs to be an integer or None'),
+        ([], dict(num_coats=2.5), AssertionError, 'Input "num_coats" needs to be an integer or None')
+    ]
+)
+def test_substrate_error(args, kwargs, error_type, error_message):
+    with pytest.raises(error_type) as e:
+        core.Substrate(*args, **kwargs)
+    assert e.value.args[0] == error_message
+
 #TODO write tests for paint class
 
 @pytest.mark.parametrize(
@@ -158,13 +202,16 @@ def test_paintclass_error(args, kwargs, error_type, error_message):
     'args, kwargs, expected',
     [
         ([core.Wall(10), core.Paint(30, 5, 17)], dict(), 70),
-        ([], {'surface' : core.Wall(50), 'paint' : core.Paint(30, 5, 17)}, 290)
+        ([], {'surface' : core.Wall(50), 'paint' : core.Paint(30, 5, 17)}, 290),
+        ([], {'surface' : core.Wall(50, substrate=core.Plaster()), 'paint' : core.Paint(30, 5, 17)}, 580),
+        ([], {'surface' : core.Skirtingboard(50, substrate=core.NewWood()), 'paint' : core.Paint(30, 5, 17)}, 930)
+
     ]
 )
 
 def test_painting_surface_class(args, kwargs, expected):
     total = core.PaintingSurface(*args, **kwargs)
-    assert total.get_total_price() == expected
+    assert total.get_total_price() == pytest.approx(expected, 0.001)
 
 
 def test_painting_surface():

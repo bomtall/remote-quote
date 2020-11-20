@@ -103,6 +103,13 @@ class Substrate:
             condition=None,
 
     ):
+        assert condition in [None, 'poor', 'okay', 'good'], 'Input "condition" needs to be "poor", "okay", "good" or None'
+        if condition is None:
+            condition = 'good'
+        assert isinstance(num_coats, int) or num_coats is None, 'Input "num_coats" needs to be an integer or None'
+
+        ##TODO add in validation for porosity
+
         self.num_coats = num_coats
         self.porosity = porosity
         self.condition = condition
