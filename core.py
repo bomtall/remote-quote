@@ -15,6 +15,7 @@ class Surface:
             width=None,
             labour_adjustment=None,
             substrate=None,
+            design=None,
     ):
 
         if area is None:
@@ -39,6 +40,7 @@ class Surface:
         self.width = width
         self.labour_adjustment = labour_adjustment
         self.substrate = substrate
+        self.design = design
 
 
 class Wall(Surface):
@@ -54,10 +56,19 @@ class Ceiling(Surface):
 
 
 class Door(Surface):
-    def __init__(self, *args, labour_adjustment=None, **kwargs):
+    def __init__(self, *args, labour_adjustment=None, design=None, **kwargs):
+
+        if design is None:
+            design = 'flat door'
+
         if labour_adjustment is None:
             labour_adjustment = 1.1
-        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment)
+            if design == 'panelled':
+                labour_adjustment = labour_adjustment * 1.1
+            elif design == 'cutting in':
+                labour_adjustment = labour_adjustment * 2
+##TODO ADD VALIDATION HERE FOR ENTERING DESIGN
+        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, design=design)
 
 class Doorframe(Surface):
     def __init__(self, *args, labour_adjustment=None, **kwargs):

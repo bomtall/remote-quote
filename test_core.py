@@ -77,6 +77,21 @@ def test_surface_substrate(args, kwargs, expected):
     assert isinstance(s.substrate, expected)
 
 
+
+@pytest.mark.parametrize(
+    'args, kwargs, expected',
+    [
+        # Testing design property in surface
+        ([1], dict(design='panelled'), 'panelled'),
+
+    ],
+)
+def test_surface_design(args, kwargs, expected):
+    s = core.Surface(*args, **kwargs)
+    assert s.design == expected
+
+
+
 # TODO write tests for wall and ceiling(done)
 
 @pytest.mark.parametrize(
@@ -119,7 +134,23 @@ def test_ceiling(args, kwargs, expected):
     c = core.Ceiling(*args, **kwargs)
     assert c.area == expected
 
-    # TODO parameterise function(done)
+@pytest.mark.parametrize(
+    'args, kwargs, expected',
+    [
+        # Testing design property in door class
+        ([1], dict(design='panelled'), 'panelled'),
+        ([1], dict(), 'flat door'),
+        ([1], dict(design='cutting in'), 'cutting in')
+
+    ],
+)
+def test_door_design(args, kwargs, expected):
+    s = core.Door(*args, **kwargs)
+    assert s.design == expected
+
+
+
+    # TODO ADD IN TEST FOR LABOUR ADJUSTMENT BASED ON DESIGN PROPERTIES
 
 @pytest.mark.parametrize(
     'args, kwargs, expected',
