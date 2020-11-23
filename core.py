@@ -56,25 +56,47 @@ class Ceiling(Surface):
 
 
 class Door(Surface):
+    def __init__(self, *args, labour_adjustment=None, design=None, num_panes=0, **kwargs):
+        if num_panes > 0:
+            design = 'cutting in'
+        if design is None:
+            design = 'flat door'
+        else:
+            assert design in ['panelled', 'flat door',
+                              'cutting in'], 'input needs to be "panelled", "flat door", "cutting in" or None'
+
+        if labour_adjustment is None:
+            labour_adjustment = 2
+            if design == 'panelled':
+                labour_adjustment = 2.1
+            elif design == 'cutting in':
+                if num_panes < 3:
+                    labour_adjustment = 2.5
+                else:
+                    labour_adjustment = min(3/2 * (num_panes + 1), 15)
+
+
+
+
+        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, design=design)
+        self.num_panes = num_panes
+
+class Doorframe(Surface):
     def __init__(self, *args, labour_adjustment=None, design=None, **kwargs):
 
         if design is None:
-            design = 'flat door'
+            design = 'standard'
+        else:
+            assert design in ['standard', 'victorian', 'elaborate'],\
+                'input needs to be "standard", "victorian", "elaborate" or None'
 
         if labour_adjustment is None:
-            labour_adjustment = 1.1
-            if design == 'panelled':
-                labour_adjustment = labour_adjustment * 1.1
-            elif design == 'cutting in':
-                labour_adjustment = labour_adjustment * 2
-##TODO ADD VALIDATION HERE FOR ENTERING DESIGN
+            labour_adjustment = 2
+            if design == 'victorian':
+                labour_adjustment = 2.1
+            elif design == 'elaborate':
+                labour_adjustment = 2.2
         super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, design=design)
-
-class Doorframe(Surface):
-    def __init__(self, *args, labour_adjustment=None, **kwargs):
-        if labour_adjustment is None:
-            labour_adjustment = 1.1
-        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment)
 
 class Skirtingboard(Surface):
     def __init__(self, *args, labour_adjustment=None, **kwargs):
@@ -83,10 +105,13 @@ class Skirtingboard(Surface):
         super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment)
 
 class Window(Surface):
-    def __init__(self, *args, labour_adjustment=None, **kwargs):
+    def __init__(self, *args, labour_adjustment=None, num_panes=1, **kwargs):
+        assert isinstance(num_panes, int) and num_panes >= 1, '"num_panes needs" to be an integer and >= 1'
         if labour_adjustment is None:
-            labour_adjustment = 1.1
+            labour_adjustment = (2 * num_panes)
+
         super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment)
+        self.num_panes = num_panes
 
 class Windowsill(Surface):
     def __init__(self, *args, labour_adjustment=None, **kwargs):
@@ -95,15 +120,25 @@ class Windowsill(Surface):
         super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment)
 
 class Spindle(Surface):
-    def __init__(self, *args, labour_adjustment=None, **kwargs):
+    def __init__(self, *args, labour_adjustment=None, design=None, **kwargs):
+        if design is None:
+            design = 'square'
+        else:
+            assert design in ['square', 'shaped', 'elaborate'], \
+                'input needs to be "square", "shaped", "elaborate" or None'
+
         if labour_adjustment is None:
-            labour_adjustment = 1.1
-        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment)
+            labour_adjustment = 2
+            if design == 'shaped':
+                labour_adjustment = 2.1
+            elif design == 'elaborate':
+                labour_adjustment = 2.2
+        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, design=design)
 
 class ElaborateCornice(Surface):
     def __init__(self, *args, labour_adjustment=None, **kwargs):
         if labour_adjustment is None:
-            labour_adjustment = 1.1
+            labour_adjustment = 2
         super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment)
 
 class Substrate:
@@ -176,17 +211,20 @@ class NewLiningPaper(Substrate):
         self.preparation_factor = self.get_preparation_factor()
         self.coverage_adjustment = 1.2
 
-    # def get_preparation_factor(self):
-    #     if self.condition == 'poor':
-    #         preparation_factor = 4
-    #     elif self.condition == 'okay':
-    #         preparation_factor = 3
-    #     else:
-    #         preparation_factor = 2
-    #
-    #     return preparation_factor
+class Mdf(Substrate):
+    def __init__(self, *args, num_coats=None, condition=None, primed=False, **kwargs):
+        if num_coats is None:
+            num_coats = 3
+        if primed:
+            num_coats = 2
 
+        if condition is None:
+            condition = 'good'
 
+        super().__init__(*args, **kwargs, num_coats=num_coats, condition=condition)
+        self.preparation_factor = self.get_preparation_factor()
+        self.coverage_adjustment = 1.2
+        self.primed = primed
 
 
 class NewWood(Substrate):

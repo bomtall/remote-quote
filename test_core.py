@@ -52,15 +52,41 @@ def test_surface_error(args, kwargs, error_type, error_message):
 
 
 @pytest.mark.parametrize(
-    'args, kwargs, expected',
+    'args, kwargs, surface_class, expected',
     [
-        ([], dict(area=1, labour_adjustment=1), 1),
-        ([], dict(area=1), 1),
-    ],
+        # Testing Labour Adjustment
+        ([1], dict(), core.Surface, 1),
+        ([1], dict(), core.Wall, 1),
+        ([1], dict(), core.Ceiling, 1.1),
+        ([1], dict(), core.Door, 2),
+        ([1], dict(labour_adjustment=2.5), core.Door, 2.5),
+        ([1], dict(design='flat door'), core.Door, 2),
+        ([1], dict(design='panelled'), core.Door, 2.1),
+        ([1], dict(design='cutting in'), core.Door, 2.5),
+        ([1], dict(num_panes=12), core.Door, 15),
+        ([1], dict(num_panes=6), core.Door, 10.5),
+        ([1], dict(), core.Doorframe, 2),
+        ([1], dict(labour_adjustment=2.5), core.Doorframe, 2.5),
+        ([1], dict(design='standard'), core.Doorframe, 2),
+        ([1], dict(design='victorian'), core.Doorframe, 2.1),
+        ([1], dict(design='elaborate'), core.Doorframe, 2.2),
+        ([1], dict(), core.Skirtingboard, 1.1),
+        ([1], dict(), core.Window, 2),
+        ([1], dict(num_panes=4), core.Window, 8),
+        ([1], dict(), core.Windowsill, 1.1),
+        ([1], dict(), core.Spindle, 2),
+        ([1], dict(labour_adjustment=3), core.Spindle, 3),
+        ([1], dict(design='square'), core.Spindle, 2),
+        ([1], dict(design='shaped'), core.Spindle, 2.1),
+        ([1], dict(design='elaborate'), core.Spindle, 2.2),
+        ([1], dict(), core.ElaborateCornice, 2),
+
+
+    ]
 )
-def test_surface_labour_adjustment(args, kwargs, expected):
-    s = core.Surface(*args, **kwargs)
-    assert s.labour_adjustment == expected
+def test_labour_adjustment(args, kwargs, surface_class, expected):
+    s = surface_class(*args, **kwargs)
+    assert s.labour_adjustment == pytest.approx(expected, 0.01)
 
 @pytest.mark.parametrize(
     'args, kwargs, expected',
@@ -135,22 +161,43 @@ def test_ceiling(args, kwargs, expected):
     assert c.area == expected
 
 @pytest.mark.parametrize(
-    'args, kwargs, expected',
+    'args, kwargs, surface_class, expected',
     [
-        # Testing design property in door class
-        ([1], dict(design='panelled'), 'panelled'),
-        ([1], dict(), 'flat door'),
-        ([1], dict(design='cutting in'), 'cutting in')
-
+        # Testing design property in surface subclasses
+        ([1], dict(design='panelled'), core.Door, 'panelled'),
+        ([1], dict(), core.Door, 'flat door'),
+        ([1], dict(design='cutting in'), core.Door, 'cutting in'),
+        ([1], dict(), core.Doorframe, 'standard'),
+        ([1], dict(design='standard'), core.Doorframe, 'standard'),
+        ([1], dict(design='victorian'), core.Doorframe, 'victorian'),
+        ([1], dict(design='elaborate'), core.Doorframe, 'elaborate'),
+        ([1], dict(), core.Spindle, 'square'),
+        ([1], dict(design='square'), core.Spindle, 'square'),
+        ([1], dict(design='shaped'), core.Spindle, 'shaped'),
+        ([1], dict(design='elaborate'), core.Spindle, 'elaborate'),
     ],
 )
-def test_door_design(args, kwargs, expected):
-    s = core.Door(*args, **kwargs)
+def test_door_design(args, kwargs, surface_class, expected):
+    s = surface_class(*args, **kwargs)
     assert s.design == expected
 
+@pytest.mark.parametrize(
+    'args, kwargs, surface_class, error_type, error_message',
+    [
+        # Testing class validations
+        ([], dict(design='fancy'), core.Door, AssertionError, 'input needs to be "panelled", "flat door", "cutting in" or None'),
+        ([], dict(design='fancy'), core.Doorframe, AssertionError, 'input needs to be "standard", "victorian", "elaborate" or None'),
+        ([], dict(design='fancy'), core.Spindle, AssertionError, 'input needs to be "square", "shaped", "elaborate" or None'),
 
+    ]
+)
+def test_surface_subclass_validation_error(args, kwargs, surface_class, error_type, error_message):
 
-    # TODO ADD IN TEST FOR LABOUR ADJUSTMENT BASED ON DESIGN PROPERTIES
+    with pytest.raises(error_type) as e:
+        surface_class(*args, **kwargs)
+    assert e.value.args[0] == error_message
+
+    # TODO ADD IN TEST FOR VALIDATION OF NUMBER OF PANES IN WINDOW AND CUTTING IN DOOR
 
 @pytest.mark.parametrize(
     'args, kwargs, expected',
