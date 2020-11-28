@@ -57,13 +57,18 @@ class Ceiling(Surface):
 
 class Door(Surface):
     def __init__(self, *args, labour_adjustment=None, design=None, num_panes=0, **kwargs):
+
+        assert design in ['panelled', 'flat door',
+                          'cutting in', None], 'input needs to be "panelled", "flat door", "cutting in" or None'
+        assert isinstance(num_panes, int) and num_panes >= 0, 'Input "num_panes" needs to be a non-negative integer'
+        assert (num_panes > 0 and design == 'cutting in') or \
+               (num_panes == 0 and design in ['panelled', 'flat door', None]), 'Only "cutting in" doors have panes > 0'
+
         if num_panes > 0:
             design = 'cutting in'
         if design is None:
             design = 'flat door'
-        else:
-            assert design in ['panelled', 'flat door',
-                              'cutting in'], 'input needs to be "panelled", "flat door", "cutting in" or None'
+
 
         if labour_adjustment is None:
             labour_adjustment = 2
@@ -74,9 +79,6 @@ class Door(Surface):
                     labour_adjustment = 2.5
                 else:
                     labour_adjustment = min(3/2 * (num_panes + 1), 15)
-
-
-
 
         super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, design=design)
         self.num_panes = num_panes
@@ -106,9 +108,11 @@ class Skirtingboard(Surface):
 
 class Window(Surface):
     def __init__(self, *args, labour_adjustment=None, num_panes=1, **kwargs):
-        assert isinstance(num_panes, int) and num_panes >= 1, '"num_panes needs" to be an integer and >= 1'
+        assert isinstance(num_panes, int) and num_panes >= 1, '"num_panes" needs to be an integer and >= 1'
         if labour_adjustment is None:
             labour_adjustment = (2 * num_panes)
+
+
 
         super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment)
         self.num_panes = num_panes
@@ -147,12 +151,18 @@ class Substrate:
             num_coats=None,
             porosity=None,
             condition=None,
+            coverage_adjustment=None,
 
     ):
         assert condition in [None, 'poor', 'okay', 'good'], 'Input "condition" needs to be "poor", "okay", "good" or None'
         if condition is None:
             condition = 'good'
         assert isinstance(num_coats, int) or num_coats is None, 'Input "num_coats" needs to be an integer or None'
+        assert (isinstance(coverage_adjustment, Number) and coverage_adjustment > 0.0) or (coverage_adjustment is None),\
+            'Input needs to be numeric and > 0, or None'
+
+        if coverage_adjustment is None:
+            coverage_adjustment = 1
 
         ##TODO add in validation for porosity
 
@@ -160,7 +170,7 @@ class Substrate:
         self.porosity = porosity
         self.condition = condition
         self.preparation_factor = self.get_preparation_factor()
-        self.coverage_adjustment = 1
+        self.coverage_adjustment = coverage_adjustment
 
     def get_preparation_factor(self):
         if self.condition == 'poor':
@@ -172,47 +182,54 @@ class Substrate:
 
         return preparation_factor
 
+
 class Plaster(Substrate):
-    def __init__(self, *args, num_coats=None, **kwargs):
+    def __init__(self, *args, num_coats=None, coverage_adjustment=None, **kwargs):
         if num_coats is None:
             num_coats = 2
+        if coverage_adjustment is None:
+            coverage_adjustment = 1.2
 
-        super().__init__(*args, **kwargs, num_coats=num_coats)
-        self.coverage_adjustment = 1.2
+        super().__init__(*args, **kwargs, num_coats=num_coats, coverage_adjustment=coverage_adjustment)
+
 
 class PrePaintedEmulsion(Substrate):
-    def __init__(self, *args, num_coats=None, condition=None, **kwargs):
+    def __init__(self, *args, num_coats=None, condition=None, coverage_adjustment=None, **kwargs):
         if num_coats is None and condition == 'poor':
             num_coats = 2
         elif num_coats is None:
             num_coats = 1
+        if coverage_adjustment is None:
+            coverage_adjustment = 1
+        super().__init__(*args, **kwargs, num_coats=num_coats, condition=condition, coverage_adjustment=coverage_adjustment)
 
-        super().__init__(*args, **kwargs, num_coats=num_coats, condition=condition)
-        self.coverage_adjustment = 1
 
 class PrePaintedWood(Substrate):
-    def __init__(self, *args, num_coats=None, condition=None, **kwargs):
+    def __init__(self, *args, num_coats=None, condition=None, coverage_adjustment=None, **kwargs):
         if num_coats is None and condition == 'poor':
             num_coats = 2
         elif num_coats is None:
             num_coats = 1
+        if coverage_adjustment is None:
+            coverage_adjustment = 1
+        super().__init__(*args, **kwargs, num_coats=num_coats, condition=condition, coverage_adjustment=coverage_adjustment)
 
-        super().__init__(*args, **kwargs, num_coats=num_coats, condition=condition)
-        self.coverage_adjustment = 1
 
 class NewLiningPaper(Substrate):
-    def __init__(self, *args, num_coats=None, condition=None, **kwargs):
+    def __init__(self, *args, num_coats=None, condition=None, coverage_adjustment=None, **kwargs):
         if num_coats is None:
             num_coats = 2
         if condition is None:
             condition = 'good'
+        if coverage_adjustment is None:
+                coverage_adjustment = 1.2
 
-        super().__init__(*args, **kwargs, num_coats=num_coats, condition=condition)
+        super().__init__(*args, **kwargs, num_coats=num_coats, coverage_adjustment=coverage_adjustment, condition=condition)
         self.preparation_factor = self.get_preparation_factor()
-        self.coverage_adjustment = 1.2
+
 
 class Mdf(Substrate):
-    def __init__(self, *args, num_coats=None, condition=None, primed=False, **kwargs):
+    def __init__(self, *args, num_coats=None, condition=None, coverage_adjustment=None, primed=False, **kwargs):
         if num_coats is None:
             num_coats = 3
         if primed:
@@ -220,22 +237,26 @@ class Mdf(Substrate):
 
         if condition is None:
             condition = 'good'
+        if coverage_adjustment is None:
+            coverage_adjustment = 1.2
 
-        super().__init__(*args, **kwargs, num_coats=num_coats, condition=condition)
+        super().__init__(*args, **kwargs, num_coats=num_coats, condition=condition, coverage_adjustment=coverage_adjustment)
         self.preparation_factor = self.get_preparation_factor()
-        self.coverage_adjustment = 1.2
+
         self.primed = primed
 
 
 class NewWood(Substrate):
-    def __init__(self, *args, num_coats=None, condition=None, **kwargs):
+    def __init__(self, *args, num_coats=None, condition=None, coverage_adjustment=None, **kwargs):
         if num_coats is None:
             num_coats = 3
         if condition is None:
             condition = 'good'
+        if coverage_adjustment is None:
+            coverage_adjustment = 1.05
 
-        super().__init__(*args, **kwargs, num_coats=num_coats, condition=condition)
-        self.coverage_adjustment = 1
+        super().__init__(*args, **kwargs, num_coats=num_coats, condition=condition, coverage_adjustment=coverage_adjustment)
+
 
 
 
@@ -282,7 +303,8 @@ class PaintingSurface:
 
 #TODO make calculation reflect unit and coverage properly
     def get_units_of_paint(self):
-        units_of_paint = math.ceil((self.surface.area / self.paint.coverage) * self.surface.substrate.num_coats)
+        units_of_paint = math.ceil((self.surface.area /
+            (self.paint.coverage/self.surface.substrate.coverage_adjustment)) * self.surface.substrate.num_coats)
         return units_of_paint
 
     def get_paint_price(self):
@@ -290,7 +312,8 @@ class PaintingSurface:
         return paint_price
 
     def get_labour_price(self):
-        labour_price = self.surface.area * self.labour_price_msq * self.surface.labour_adjustment * self.surface.substrate.num_coats
+        labour_price = self.surface.area * self.labour_price_msq * self.surface.labour_adjustment * \
+            self.surface.substrate.num_coats
         return labour_price
 
     def get_total_price(self):

@@ -185,10 +185,18 @@ def test_door_design(args, kwargs, surface_class, expected):
     'args, kwargs, surface_class, error_type, error_message',
     [
         # Testing class validations
-        ([], dict(design='fancy'), core.Door, AssertionError, 'input needs to be "panelled", "flat door", "cutting in" or None'),
-        ([], dict(design='fancy'), core.Doorframe, AssertionError, 'input needs to be "standard", "victorian", "elaborate" or None'),
-        ([], dict(design='fancy'), core.Spindle, AssertionError, 'input needs to be "square", "shaped", "elaborate" or None'),
-
+        ([1], dict(design='fancy'), core.Door, AssertionError, 'input needs to be "panelled", "flat door", "cutting in" or None'),
+        ([1], dict(design='fancy'), core.Doorframe, AssertionError, 'input needs to be "standard", "victorian", "elaborate" or None'),
+        ([1], dict(design='fancy'), core.Spindle, AssertionError, 'input needs to be "square", "shaped", "elaborate" or None'),
+        ([1], dict(num_panes='10'), core.Door, AssertionError, 'Input "num_panes" needs to be a non-negative integer'),
+        ([1], dict(num_panes=-5), core.Door, AssertionError, 'Input "num_panes" needs to be a non-negative integer'),
+        ([1], dict(num_panes=2.4), core.Door, AssertionError, 'Input "num_panes" needs to be a non-negative integer'),
+        ([1], dict(num_panes=2, design='flat door'), core.Door, AssertionError, 'Only "cutting in" doors have panes > 0'),
+        ([1], dict(num_panes=0, design='cutting in'), core.Door, AssertionError, 'Only "cutting in" doors have panes > 0'),
+        ([1], dict(num_panes=0), core.Window, AssertionError, '"num_panes" needs to be an integer and >= 1'),
+        ([1], dict(num_panes=2.4), core.Window, AssertionError, '"num_panes" needs to be an integer and >= 1'),
+        ([1], dict(num_panes=-5), core.Window, AssertionError, '"num_panes" needs to be an integer and >= 1'),
+        ([1], dict(num_panes='6'), core.Window, AssertionError, '"num_panes" needs to be an integer and >= 1'),
     ]
 )
 def test_surface_subclass_validation_error(args, kwargs, surface_class, error_type, error_message):
@@ -196,6 +204,8 @@ def test_surface_subclass_validation_error(args, kwargs, surface_class, error_ty
     with pytest.raises(error_type) as e:
         surface_class(*args, **kwargs)
     assert e.value.args[0] == error_message
+
+
 
     # TODO ADD IN TEST FOR VALIDATION OF NUMBER OF PANES IN WINDOW AND CUTTING IN DOOR
 
@@ -237,7 +247,10 @@ def test_substrate(args, kwargs, expected):
         # Testing Input validation
         ([], dict(condition='excellent'), AssertionError, 'Input "condition" needs to be "poor", "okay", "good" or None' ),
         ([], dict(num_coats='10'), AssertionError, 'Input "num_coats" needs to be an integer or None'),
-        ([], dict(num_coats=2.5), AssertionError, 'Input "num_coats" needs to be an integer or None')
+        ([], dict(num_coats=2.5), AssertionError, 'Input "num_coats" needs to be an integer or None'),
+        ([], dict(coverage_adjustment=-1), AssertionError, 'Input needs to be numeric and > 0, or None'),
+        ([], dict(coverage_adjustment='-1'), AssertionError, 'Input needs to be numeric and > 0, or None'),
+        ([], dict(coverage_adjustment=0), AssertionError, 'Input needs to be numeric and > 0, or None'),
     ]
 )
 def test_substrate_error(args, kwargs, error_type, error_message):
@@ -281,8 +294,10 @@ def test_paintclass_error(args, kwargs, error_type, error_message):
     [
         ([core.Wall(10), core.Paint(30, 5, 17)], dict(), 70),
         ([], {'surface' : core.Wall(50), 'paint' : core.Paint(30, 5, 17)}, 290),
-        ([], {'surface' : core.Wall(50, substrate=core.Plaster()), 'paint' : core.Paint(30, 5, 17)}, 580),
-        ([], {'surface' : core.Skirtingboard(50, substrate=core.NewWood()), 'paint' : core.Paint(30, 5, 17)}, 930)
+        ([], {'surface' : core.Wall(50, substrate=core.Plaster(coverage_adjustment=1)), 'paint' : core.Paint(30, 5, 17)}, 580),
+        ([], {'surface' : core.Skirtingboard(50, substrate=core.NewWood(coverage_adjustment=1)), 'paint' : core.Paint(30, 5, 17)}, 930),
+        ([], {'surface' : core.Wall(50, substrate=core.Plaster()), 'paint' : core.Paint(30, 5, 17)}, 640),
+        ([], {'surface' : core.Windowsill(0.36, substrate=core.Mdf()), 'paint' : core.Paint(30, 5, 17)}, 34.752),
 
     ]
 )
