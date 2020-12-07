@@ -274,7 +274,7 @@ def get_total_surface_area(surfaces):
 # PAINT
 
 class Paint:
-    def __init__(self, price, unit, coverage):
+    def __init__(self, price, unit, coverage,):
 
         assert isinstance(price, Number), 'Input "price" needs to be numeric.'
         assert isinstance(unit, Number), 'Input "unit" needs to be numeric.'
@@ -283,6 +283,7 @@ class Paint:
         self.price = price
         self.unit = unit
         self.coverage = coverage
+
 
 
 # ======================================================================================================================
@@ -332,26 +333,39 @@ class PaintingSurface:
         return breakdown
 
 
-class Job:
+class Room:
      def __init__(self, painting_surfaces):
          self.painting_surfaces = painting_surfaces
 
      def get_paint_price(self):
-         job_paint_price = 0
+         room_paint_price = 0
          for painting_surface in self.painting_surfaces:
-             job_paint_price += painting_surface.get_paint_price()
-         return job_paint_price
+             room_paint_price += painting_surface.get_paint_price()
+         return room_paint_price
 
      def get_labour_price(self):
-         job_labour_price = 0
+         room_labour_price = 0
          for painting_surface in self.painting_surfaces:
-             job_labour_price += painting_surface.get_labour_price()
-         return job_labour_price
+             room_labour_price += painting_surface.get_labour_price()
+         return room_labour_price
 
      def get_total_price(self):
-         job_total_price = 0
+         room_total_price = 0
          for painting_surface in self.painting_surfaces:
-             job_total_price += painting_surface.get_total_price()
-         return job_total_price
+             room_total_price += painting_surface.get_total_price()
+         return room_total_price
+
+class Job:
+    def __init__(self, rooms):
+        self.rooms = rooms
+
+    def get_total_job_price(self):
+        total_job_price = 0
+        for room in self.rooms:
+            total_job_price += room.get_total_price()
+        return total_job_price
+
+
+
 
 #TODO worry about units of paint and paint price when adding up for same paint

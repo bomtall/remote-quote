@@ -31,3 +31,4 @@ class Diamond(core.Paint):
         #price = get_price("https://www.duluxdecoratorcentre.co.uk/dulux-trade-diamond-matt", 6)
         price = 50.03
         super().__init__(price, unit, coverage)
+

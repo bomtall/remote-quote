@@ -325,21 +325,30 @@ def test_painting_surface():
     assert total_price == 140
 
 
-
-
 #TODO parameterise and separate tests for each function
 
-def test_job():
 
-    painting_surface_1 = core.PaintingSurface(core.Wall(8), core.Paint(30, 5, 17))
-    painting_surface_2 = core.PaintingSurface(core.Wall(10), core.Paint(30, 5, 17))
-    painting_surface_3 = core.PaintingSurface(core.Ceiling(20), core.Paint(30, 5, 17))
+@pytest.mark.parametrize(
+    'args, kwargs',
+    [
 
-    job_1 = core.Job([painting_surface_1, painting_surface_2, painting_surface_3])
-    assert job_1.get_paint_price() == 120
+        ([], dict( painting_surfaces = [core.PaintingSurface(core.Wall(8), core.Paint(30, 5, 17)), core.PaintingSurface(core.Wall(8), core.Paint(30, 5, 17)), core.PaintingSurface(core.Wall(8), core.Paint(30, 5, 17))])),
+        ([[core.PaintingSurface(core.Wall(8), core.Paint(30, 5, 17)), core.PaintingSurface(core.Wall(8), core.Paint(30, 5, 17)), core.PaintingSurface(core.Wall(8), core.Paint(30, 5, 17))]], dict()),
+   ]
+)
 
-    assert job_1.get_labour_price() == 160
+def test_room(args, kwargs):
 
-    assert job_1.get_total_price() == 280
+    # surfaces = [core.PaintingSurface(core.Wall(8), core.Paint(30, 5, 17)), core.PaintingSurface(core.Wall(8), core.Paint(30, 5, 17)), core.PaintingSurface(core.Wall(8), core.Paint(30, 5, 17))]
+    # total = core.Room(painting_surfaces = surfaces)
+    total = core.Room(*args, **kwargs)
+    assert total.get_total_price() == 186
+
+    # assert core.Room.get_total_price() == 280
+    # assert core.Room.get_paint_price() == 120
+    # assert core.Room.get_labour_price() == 160
+
+
+
 
     ...
