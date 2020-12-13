@@ -32,3 +32,97 @@ class Diamond(core.Paint):
         price = 50.03
         super().__init__(price, unit, coverage)
 
+class EmulsionPaint(core.Paint):
+    def __init__(self, price=None, unit=None, coverage=None):
+        super().__init__(price, unit, coverage)
+
+class MattEmulsionPaint(EmulsionPaint):
+    def __init__(self, price=None, unit=None, coverage=None):
+
+        if price is None:
+            price = 37.87
+        if unit is None:
+            unit = 5
+        if coverage is None:
+            coverage = 50
+
+        super().__init__(price, unit, coverage)
+
+
+class SilkEmulsionPaint(EmulsionPaint):
+    def __init__(self, price=None, unit=None, coverage=None):
+
+        if price is None:
+            price = 46.27
+        if unit is None:
+            unit = 5
+        if coverage is None:
+            coverage = 50
+
+        super().__init__(price, unit, coverage)
+
+class DiamondMattEmulsion(EmulsionPaint):
+    def __init__(self, price=None, unit=None, coverage=None):
+        if price is None:
+            price = 50.03
+        if unit is None:
+            unit = 5
+        if coverage is None:
+            coverage = 50
+        super().__init__(price, unit, coverage)
+
+class OilPaint(core.Paint):
+    def __init__(self, price=None, unit=None, coverage=None):
+        super().__init__(price, unit, coverage)
+
+class OilEggshell(OilPaint):
+    def __init__(self, price=None, unit=None, coverage=None):
+        if price is None:
+            price = 32.07
+        if unit is None:
+            unit = 2.5
+        if coverage is None:
+            coverage = 25
+
+        super().__init__(price, unit, coverage)
+
+
+class OilGloss(OilPaint):
+    def __init__(self, price=None, unit=None, coverage=None):
+
+        if price is None:
+            price = 19.00
+        if unit is None:
+            unit = 2.5
+        if coverage is None:
+            coverage = 25
+
+        super().__init__(price, unit, coverage)
+
+class OilSatin(OilPaint):
+    def __init__(self, price=None, unit=None, coverage=None):
+
+        if price is None:
+            price = 37.20
+        if unit is None:
+            unit = 2.5
+        if coverage is None:
+            coverage = 25
+
+        super().__init__(price, unit, coverage)
+
+
+
+class Primer(core.Paint):
+    def __init__(self, price=None, unit=None, coverage=None):
+
+        if price is None:
+            price = 31.15
+        if unit is None:
+            unit = 2.5
+        if coverage is None:
+            coverage = 25
+
+        super().__init__(price, unit, coverage)
+
+

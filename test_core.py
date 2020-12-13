@@ -62,7 +62,7 @@ def test_surface_error(args, kwargs, error_type, error_message):
         ([1], dict(labour_adjustment=2.5), core.Door, 2.5),
         ([1], dict(design='flat door'), core.Door, 2),
         ([1], dict(design='panelled'), core.Door, 2.1),
-        ([1], dict(design='cutting in'), core.Door, 2.5),
+        ([1], dict(design='cutting in', num_panes=2), core.Door, 2.5),
         ([1], dict(num_panes=12), core.Door, 15),
         ([1], dict(num_panes=6), core.Door, 10.5),
         ([1], dict(), core.Doorframe, 2),
@@ -80,6 +80,7 @@ def test_surface_error(args, kwargs, error_type, error_message):
         ([1], dict(design='shaped'), core.Spindle, 2.1),
         ([1], dict(design='elaborate'), core.Spindle, 2.2),
         ([1], dict(), core.ElaborateCornice, 2),
+        ([1], dict(), core.Radiator, 2),
 
 
     ]
@@ -109,6 +110,7 @@ def test_surface_substrate(args, kwargs, expected):
     [
         # Testing design property in surface
         ([1], dict(design='panelled'), 'panelled'),
+
 
     ],
 )

@@ -16,6 +16,9 @@ class Surface:
             labour_adjustment=None,
             substrate=None,
             design=None,
+            description=None,
+            name=None,
+
     ):
 
         if area is None:
@@ -35,40 +38,75 @@ class Surface:
         if substrate is None:
             substrate = PrePaintedEmulsion()
 
+
+
         self.area = area
         self.length = length
         self.width = width
         self.labour_adjustment = labour_adjustment
         self.substrate = substrate
         self.design = design
+        self.description = description
+        self.name = name
+
+
+
+
+
+
+class ConditionAssumptions():
+    def __init__(self):
+        poor = '''Poor condition is where lots of preparation is required. Surfaces exhibit cracking, gaps not filled,
+        previously poorly painted with drips and fibres in the surface paint.'''
+        okay = '''Okay condition is where some small amount of preparation is needed, 
+        there is very little filling and sanding required'''
+        good = '''Good condition is where there is almost no preparation required'''
+
+
+        self.poor = poor
+        self.okay = okay
+        self.good = good
+
+    def get_condition_assumption(self, condition):
+        if condition == 'poor':
+            return 'poor_example.jpg'
+        else:
+            return 'poor_example.jpg'
+
 
 
 class Wall(Surface):
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        description = 'An interior wall'
+        name = 'Wall'
+        super().__init__(*args, **kwargs, description=description, name=name)
 
 
 class Ceiling(Surface):
     def __init__(self, *args, labour_adjustment=None, **kwargs):
+        description = 'An interior ceiling'
+        name = 'Ceiling'
         if labour_adjustment is None:
             labour_adjustment = 1.1
-        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment)
+
+        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, description=description, name=name)
 
 
 class Door(Surface):
     def __init__(self, *args, labour_adjustment=None, design=None, num_panes=0, **kwargs):
-
+        description = 'One side of an interior door'
+        name = 'Door'
         assert design in ['panelled', 'flat door',
                           'cutting in', None], 'input needs to be "panelled", "flat door", "cutting in" or None'
         assert isinstance(num_panes, int) and num_panes >= 0, 'Input "num_panes" needs to be a non-negative integer'
-        assert (num_panes > 0 and design == 'cutting in') or \
-               (num_panes == 0 and design in ['panelled', 'flat door', None]), 'Only "cutting in" doors have panes > 0'
 
         if num_panes > 0:
             design = 'cutting in'
         if design is None:
             design = 'flat door'
 
+        assert (num_panes > 0 and design == 'cutting in') or \
+               (num_panes == 0 and design in ['panelled', 'flat door', None]), 'Only "cutting in" doors have panes > 0'
 
         if labour_adjustment is None:
             labour_adjustment = 2
@@ -80,12 +118,14 @@ class Door(Surface):
                 else:
                     labour_adjustment = min(3/2 * (num_panes + 1), 15)
 
-        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, design=design)
+        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, design=design, description=description,\
+                         name=name)
         self.num_panes = num_panes
 
 class Doorframe(Surface):
     def __init__(self, *args, labour_adjustment=None, design=None, **kwargs):
-
+        description = 'Room side of door frame'
+        name = 'Door Frame'
         if design is None:
             design = 'standard'
         else:
@@ -98,33 +138,40 @@ class Doorframe(Surface):
                 labour_adjustment = 2.1
             elif design == 'elaborate':
                 labour_adjustment = 2.2
-        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, design=design)
+        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, design=design, description=description,\
+                         name=name)
 
 class Skirtingboard(Surface):
     def __init__(self, *args, labour_adjustment=None, **kwargs):
+        description = 'Skirting board along the bottom of a wall'
+        name = 'Skirting board'
         if labour_adjustment is None:
             labour_adjustment = 1.1
-        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment)
+        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, description=description, name=name)
 
 class Window(Surface):
     def __init__(self, *args, labour_adjustment=None, num_panes=1, **kwargs):
+        description = 'Interior side of a window, frame included'
+        name = 'Window'
         assert isinstance(num_panes, int) and num_panes >= 1, '"num_panes" needs to be an integer and >= 1'
         if labour_adjustment is None:
             labour_adjustment = (2 * num_panes)
 
-
-
-        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment)
+        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, description=description, name=name)
         self.num_panes = num_panes
 
 class Windowsill(Surface):
     def __init__(self, *args, labour_adjustment=None, **kwargs):
+        description = 'The interior horizontal sill beneath a window'
+        name = 'Windowsill'
         if labour_adjustment is None:
             labour_adjustment = 1.1
-        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment)
+        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, description=description, name=name)
 
 class Spindle(Surface):
     def __init__(self, *args, labour_adjustment=None, design=None, **kwargs):
+        description = 'Vertical bars underneath a handrail'
+        name = 'Spindle'
         if design is None:
             design = 'square'
         else:
@@ -137,13 +184,25 @@ class Spindle(Surface):
                 labour_adjustment = 2.1
             elif design == 'elaborate':
                 labour_adjustment = 2.2
-        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, design=design)
+        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, design=design, description=description,\
+                         name=name)
 
 class ElaborateCornice(Surface):
     def __init__(self, *args, labour_adjustment=None, **kwargs):
+        description = 'Large ornate plaster cornice, ceiling roses or corbels'
+        name = 'Decorative plaster'
         if labour_adjustment is None:
             labour_adjustment = 2
-        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment)
+        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, description=description, name=name)
+
+class Radiator(Surface):
+    def __init__(self, *args, labour_adjustment=None, **kwargs):
+        description = 'Enamelled modern radiator'
+        name = 'Radiator'
+        if labour_adjustment is None:
+            labour_adjustment = 2
+        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, description=description, name=name)
+
 
 class Substrate:
     def __init__(
@@ -152,6 +211,7 @@ class Substrate:
             porosity=None,
             condition=None,
             coverage_adjustment=None,
+            condition_assumption=None
 
     ):
         assert condition in [None, 'poor', 'okay', 'good'], 'Input "condition" needs to be "poor", "okay", "good" or None'
@@ -164,6 +224,9 @@ class Substrate:
         if coverage_adjustment is None:
             coverage_adjustment = 1
 
+        if condition_assumption is None:
+            condition_assumption = ConditionAssumptions()
+
         ##TODO add in validation for porosity
 
         self.num_coats = num_coats
@@ -171,6 +234,7 @@ class Substrate:
         self.condition = condition
         self.preparation_factor = self.get_preparation_factor()
         self.coverage_adjustment = coverage_adjustment
+        self.condition_assumption = condition_assumption
 
     def get_preparation_factor(self):
         if self.condition == 'poor':
@@ -181,6 +245,8 @@ class Substrate:
             preparation_factor = 1
 
         return preparation_factor
+
+
 
 
 class Plaster(Substrate):
