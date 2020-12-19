@@ -440,12 +440,12 @@ class Job:
 
 
 #bring primer in to bare wood and mdf
-#include number of panes of glass option for door and window
+
 #and substrate to add to GUI
 #paint brand/description
 #budget
 #assumptions
-#add panes functionality into GUI
+
 
 
 #options to combine same paint type and colour used on multiple surfaces to avoid buying more paint that needed
