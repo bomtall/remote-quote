@@ -1,5 +1,6 @@
 import pytest
 import core
+import paint_link
 
 
 @pytest.mark.parametrize(
@@ -329,28 +330,46 @@ def test_painting_surface():
 
 #TODO parameterise and separate tests for each function
 
+room_test_painting_surface = core.PaintingSurface(core.Wall(8), core.Paint(30, 5, 17))
+room_test_painting_surface_2 = core.PaintingSurface(core.Wall(10), paint_link.MattEmulsionPaint())
+room_test_painting_surface_3 = core.PaintingSurface(core.Wall(20, substrate=core.Plaster()), paint_link.DiamondMattEmulsion())
+room_test_painting_surface_4 = core.PaintingSurface(core.Skirtingboard(1, substrate=core.Mdf(primed=True)), paint_link.OilEggshell())
+
 
 @pytest.mark.parametrize(
-    'args, kwargs',
+    'args, kwargs, expected',
     [
 
-        ([], dict( painting_surfaces = [core.PaintingSurface(core.Wall(8), core.Paint(30, 5, 17)), core.PaintingSurface(core.Wall(8), core.Paint(30, 5, 17)), core.PaintingSurface(core.Wall(8), core.Paint(30, 5, 17))])),
-        ([[core.PaintingSurface(core.Wall(8), core.Paint(30, 5, 17)), core.PaintingSurface(core.Wall(8), core.Paint(30, 5, 17)), core.PaintingSurface(core.Wall(8), core.Paint(30, 5, 17))]], dict()),
-   ]
+        ([], dict(painting_surfaces = [room_test_painting_surface]*3), [186, 90, 96]),
+        ([[room_test_painting_surface]*3], dict(), [186, 90, 96]),
+        ([], dict(painting_surfaces = [room_test_painting_surface_2]), [77.87, 37.87, 40]),
+        ([[room_test_painting_surface, room_test_painting_surface_2]], dict(), [139.87, 67.87, 72]),
+        ([[room_test_painting_surface_3, room_test_painting_surface_4, room_test_painting_surface]], dict(), [312.9, 112.1, 200.8])
+
+
+   ],
 )
 
-def test_room(args, kwargs):
-
-    # surfaces = [core.PaintingSurface(core.Wall(8), core.Paint(30, 5, 17)), core.PaintingSurface(core.Wall(8), core.Paint(30, 5, 17)), core.PaintingSurface(core.Wall(8), core.Paint(30, 5, 17))]
-    # total = core.Room(painting_surfaces = surfaces)
+def test_room(args, kwargs, expected):
     total = core.Room(*args, **kwargs)
-    assert total.get_total_price() == 186
+    assert total.get_total_price() == expected[0]
+    assert total.get_paint_price() == expected[1]
+    assert total.get_labour_price() == expected[2]
 
-    # assert core.Room.get_total_price() == 280
-    # assert core.Room.get_paint_price() == 120
-    # assert core.Room.get_labour_price() == 160
+room_1 = core.Room([room_test_painting_surface, room_test_painting_surface_2])
+room_2 = core.Room([room_test_painting_surface_3, room_test_painting_surface_4])
+
+@pytest.mark.parametrize(
+    'args, kwargs, expected',
+    [
+        ([[room_1, room_2]], dict(), 390.77),
+
+    ],
+)
+def test_job(args, kwargs, expected):
+    total = core.Job(*args, **kwargs)
+    assert total.get_total_price() == expected
 
 
 
 
-    ...

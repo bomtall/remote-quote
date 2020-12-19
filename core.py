@@ -369,6 +369,8 @@ class PaintingSurface:
         self.labour_price_msq = labour_price_msq
 
 #TODO make calculation reflect unit and coverage properly
+        #if surface.substrate in [NewWood, MDF, ]
+
     def get_units_of_paint(self):
         units_of_paint = math.ceil((self.surface.area /
             (self.paint.coverage/self.surface.substrate.coverage_adjustment)) * self.surface.substrate.num_coats)
@@ -425,7 +427,7 @@ class Job:
     def __init__(self, rooms):
         self.rooms = rooms
 
-    def get_total_job_price(self):
+    def get_total_price(self):
         total_job_price = 0
         for room in self.rooms:
             total_job_price += room.get_total_price()
@@ -435,3 +437,20 @@ class Job:
 
 
 #TODO worry about units of paint and paint price when adding up for same paint
+
+# end to end run in GUI
+#bring primer in to bare wood and mdf
+#options to combine same paint type and colour used on multiple surfaces to avoid buying more paint that needed
+#flexible unit sizes or option to not round up units to get around multiple uses of same paints
+#option to provide materials/just call the labour price
+#option to apply trade discount to materials price
+#design option in GUI and substrate to add to GUI
+#paint brand/description
+#budget
+#assumptions
+
+#multiple surfsces
+#multiple rooms
+
+
+#
