@@ -441,7 +441,7 @@ class Job:
 
 #bring primer in to bare wood and mdf
 #include number of panes of glass option for door and window
-#design option in GUI and substrate to add to GUI
+#and substrate to add to GUI
 #paint brand/description
 #budget
 #assumptions
