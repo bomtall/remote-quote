@@ -371,5 +371,38 @@ def test_job(args, kwargs, expected):
     assert total.get_total_price() == expected
 
 
+@pytest.mark.parametrize(
+    'args, kwargs, expected',
+    [
+        ([[room_test_painting_surface, room_test_painting_surface_2]], dict(), [
+            {'total_price': 62, 'labour_price': 32, 'paint_price': 30, 'units_of_paint': 1},
+            {'total_price': 77.87, 'labour_price': 40, 'paint_price': 37.87, 'units_of_paint': 1}]),
+
+    ],
+)
+def test_room_breakdown(args, kwargs, expected):
+    room = core.Room(*args, **kwargs)
+    breakdown = room.get_breakdown()
+    assert breakdown == expected
+
+
+@pytest.mark.parametrize(
+    'args, kwargs, expected',
+    [
+        ([[room_1, room_1]], dict(), [
+            [{'total_price': 62, 'labour_price': 32, 'paint_price': 30, 'units_of_paint': 1},
+            {'total_price': 77.87, 'labour_price': 40, 'paint_price': 37.87, 'units_of_paint': 1}],
+            [{'total_price': 62, 'labour_price': 32, 'paint_price': 30, 'units_of_paint': 1},
+            {'total_price': 77.87, 'labour_price': 40, 'paint_price': 37.87, 'units_of_paint': 1}]]),
+
+
+    ],
+)
+def test_job_breakdown(args, kwargs, expected):
+    job = core.Job(*args, **kwargs)
+    breakdown = job.get_breakdown()
+    assert breakdown == expected
+
+
 
 

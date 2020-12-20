@@ -18,6 +18,7 @@ class Surface:
             design=None,
             description=None,
             name=None,
+            num_panes=None
 
     ):
 
@@ -48,6 +49,7 @@ class Surface:
         self.design = design
         self.description = description
         self.name = name
+        self.num_panes = num_panes
 
 
 
@@ -93,20 +95,28 @@ class Ceiling(Surface):
 
 
 class Door(Surface):
-    def __init__(self, *args, labour_adjustment=None, design=None, num_panes=0, **kwargs):
+    def __init__(self, *args, labour_adjustment=None, design=None, num_panes=None, **kwargs):
         description = 'One side of an interior door'
         name = 'Door'
+
+        if design == 'cutting in' and num_panes is None:
+            num_panes = 1
+        elif num_panes is None:
+            num_panes=0
+
         assert design in ['panelled', 'flat door',
                           'cutting in', None], 'input needs to be "panelled", "flat door", "cutting in" or None'
         assert isinstance(num_panes, int) and num_panes >= 0, 'Input "num_panes" needs to be a non-negative integer'
 
-        if num_panes > 0:
+
+        if num_panes > 0 and design is None:
             design = 'cutting in'
         if design is None:
             design = 'flat door'
 
         assert (num_panes > 0 and design == 'cutting in') or \
                (num_panes == 0 and design in ['panelled', 'flat door', None]), 'Only "cutting in" doors have panes > 0'
+
 
         if labour_adjustment is None:
             labour_adjustment = 2
@@ -118,9 +128,9 @@ class Door(Surface):
                 else:
                     labour_adjustment = min(3/2 * (num_panes + 1), 15)
 
-        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, design=design, description=description,\
-                         name=name)
-        self.num_panes = num_panes
+        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, design=design, description=description,
+                         name=name, num_panes=num_panes)
+
 
 class Doorframe(Surface):
     def __init__(self, *args, labour_adjustment=None, design=None, **kwargs):
@@ -157,8 +167,9 @@ class Window(Surface):
         if labour_adjustment is None:
             labour_adjustment = (2 * num_panes)
 
-        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, description=description, name=name)
-        self.num_panes = num_panes
+        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, description=description,
+                         name=name, num_panes=num_panes)
+
 
 class Windowsill(Surface):
     def __init__(self, *args, labour_adjustment=None, **kwargs):
@@ -211,7 +222,8 @@ class Substrate:
             porosity=None,
             condition=None,
             coverage_adjustment=None,
-            condition_assumption=None
+            condition_assumption=None,
+            primed=False
 
     ):
         assert condition in [None, 'poor', 'okay', 'good'], 'Input "condition" needs to be "poor", "okay", "good" or None'
@@ -235,6 +247,7 @@ class Substrate:
         self.preparation_factor = self.get_preparation_factor()
         self.coverage_adjustment = coverage_adjustment
         self.condition_assumption = condition_assumption
+        self.primed=False
 
     def get_preparation_factor(self):
         if self.condition == 'poor':
@@ -288,7 +301,7 @@ class NewLiningPaper(Substrate):
         if condition is None:
             condition = 'good'
         if coverage_adjustment is None:
-                coverage_adjustment = 1.2
+            coverage_adjustment = 1.2
 
         super().__init__(*args, **kwargs, num_coats=num_coats, coverage_adjustment=coverage_adjustment, condition=condition)
         self.preparation_factor = self.get_preparation_factor()
@@ -298,7 +311,7 @@ class Mdf(Substrate):
     def __init__(self, *args, num_coats=None, condition=None, coverage_adjustment=None, primed=False, **kwargs):
         if num_coats is None:
             num_coats = 3
-        if primed:
+        if primed is True:
             num_coats = 2
 
         if condition is None:
@@ -306,10 +319,10 @@ class Mdf(Substrate):
         if coverage_adjustment is None:
             coverage_adjustment = 1.2
 
-        super().__init__(*args, **kwargs, num_coats=num_coats, condition=condition, coverage_adjustment=coverage_adjustment)
+        super().__init__(*args, **kwargs, num_coats=num_coats, condition=condition, coverage_adjustment=coverage_adjustment, primed=primed)
         self.preparation_factor = self.get_preparation_factor()
 
-        self.primed = primed
+
 
 
 class NewWood(Substrate):
@@ -423,6 +436,12 @@ class Room:
              room_total_price += painting_surface.get_total_price()
          return room_total_price
 
+     def get_breakdown(self):
+         breakdown_list=[]
+         for painting_surface in self.painting_surfaces:
+             breakdown_list.append(painting_surface.get_breakdown())
+         return breakdown_list
+
 class Job:
     def __init__(self, rooms):
         self.rooms = rooms
@@ -433,7 +452,11 @@ class Job:
             total_job_price += room.get_total_price()
         return total_job_price
 
-
+    def get_breakdown(self):
+        breakdown_list = []
+        for room in self.rooms:
+            breakdown_list.append(room.get_breakdown())
+        return breakdown_list
 
 
 #TODO worry about units of paint and paint price when adding up for same paint
