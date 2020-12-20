@@ -441,7 +441,6 @@ class Job:
 
 #bring primer in to bare wood and mdf
 
-#and substrate to add to GUI
 #paint brand/description
 #budget
 #assumptions
