@@ -406,17 +406,31 @@ class PaintingSurface:
     def get_breakdown(self):
 
         breakdown = dict(
+            surface_name = self.surface.name,
             total_price = self.get_total_price(),
             labour_price = self.get_labour_price(),
             paint_price = self.get_paint_price(),
             units_of_paint = self.get_units_of_paint(),
+            surface_area = self.surface.area,
         )
         return breakdown
 
 
 class Room:
-     def __init__(self, painting_surfaces):
-         self.painting_surfaces = painting_surfaces
+     def __init__(self, painting_surfaces, name=None):
+
+        if name is None:
+            name='my room'
+
+        self.painting_surfaces = painting_surfaces
+        self.name = name
+
+        #adding the room name to the surface name
+
+        for painting_surface in self.painting_surfaces:
+            breakdown_dict = painting_surface.get_breakdown()
+            breakdown_dict['surface_name'] = self.name + ' ' + breakdown_dict['surface_name']
+
 
      def get_paint_price(self):
          room_paint_price = 0
@@ -438,8 +452,13 @@ class Room:
 
      def get_breakdown(self):
          breakdown_list=[]
+
          for painting_surface in self.painting_surfaces:
-             breakdown_list.append(painting_surface.get_breakdown())
+             breakdown_dict = painting_surface.get_breakdown()
+             #breakdown_dict['surface_name'] = self.name + ' ' + breakdown_dict['surface_name']
+             breakdown_list.append(breakdown_dict)
+
+
          return breakdown_list
 
 class Job:
@@ -457,6 +476,18 @@ class Job:
         for room in self.rooms:
             breakdown_list.append(room.get_breakdown())
         return breakdown_list
+
+    def get_painting_surface_list(self):
+        painting_surface_list = []
+        for room in self.rooms:
+            for painting_surface in room.painting_surfaces:
+                painting_surface_list.append(painting_surface)
+
+        # sorting list in preparation for knapsack algorithm which needs ascending order of cost
+        painting_surface_list.sort(key=lambda x: x.get_total_price())
+
+        return painting_surface_list
+
 
 
 #TODO worry about units of paint and paint price when adding up for same paint
