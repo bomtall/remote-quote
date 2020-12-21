@@ -11,7 +11,7 @@ def optimal_knapsack(capacity, values, costs):
             l.append(-1)
         k.append(l)
 
-        # filling in matrix k
+    # filling in matrix k
     for i in n:
         for w in m:
             if i == 0 or w == 0:

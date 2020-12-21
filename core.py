@@ -1,5 +1,6 @@
 from numbers import Number
 import math
+import knapsack
 
 # ======================================================================================================================
 # ======================================================================================================================
@@ -18,7 +19,8 @@ class Surface:
             design=None,
             description=None,
             name=None,
-            num_panes=None
+            num_panes=None,
+            room_name=None
 
     ):
 
@@ -50,6 +52,7 @@ class Surface:
         self.description = description
         self.name = name
         self.num_panes = num_panes
+        self.room_name = room_name
 
 
 
@@ -407,6 +410,7 @@ class PaintingSurface:
 
         breakdown = dict(
             surface_name = self.surface.name,
+            room_name = self.surface.room_name,
             total_price = self.get_total_price(),
             labour_price = self.get_labour_price(),
             paint_price = self.get_paint_price(),
@@ -428,8 +432,8 @@ class Room:
         #adding the room name to the surface name
 
         for painting_surface in self.painting_surfaces:
-            breakdown_dict = painting_surface.get_breakdown()
-            breakdown_dict['surface_name'] = self.name + ' ' + breakdown_dict['surface_name']
+            painting_surface.surface.room_name = self.name
+
 
 
      def get_paint_price(self):
@@ -455,15 +459,19 @@ class Room:
 
          for painting_surface in self.painting_surfaces:
              breakdown_dict = painting_surface.get_breakdown()
-             #breakdown_dict['surface_name'] = self.name + ' ' + breakdown_dict['surface_name']
              breakdown_list.append(breakdown_dict)
 
 
          return breakdown_list
 
+
 class Job:
-    def __init__(self, rooms):
+    def __init__(self, rooms, name=None):
         self.rooms = rooms
+        self.name = name
+
+        if name is None:
+            name='my job'
 
     def get_total_price(self):
         total_job_price = 0
@@ -488,7 +496,65 @@ class Job:
 
         return painting_surface_list
 
+    @staticmethod
+    def get_area_cost_lists(painting_surface_list):
 
+        surface_area_list = []
+        painting_price_list = []
+
+        # creating value and cost lists for knapsack
+        for painting_surface in painting_surface_list:
+            surface_area_list.append(painting_surface.surface.area)
+            painting_price_list.append(math.ceil(painting_surface.get_total_price()))
+
+        return surface_area_list, painting_price_list
+
+    def get_optimised_job(self, budget):
+
+        surface_list = self.get_painting_surface_list()
+        values, costs = self.get_area_cost_lists(surface_list)
+        optimal_index_list = knapsack.optimal_knapsack(budget, values, costs)
+        optimal_surface_list = [surface_list[i] for i in optimal_index_list]
+        return OptimisedJob(optimal_surface_list, surface_list, budget)
+
+class OptimisedJob:
+    def __init__(self, budgeted_painting_surface_list, original_painting_surface_list, budget):
+        self.budgeted_painting_surface_list = sorted(budgeted_painting_surface_list, key= lambda x:x.surface.room_name)
+        self.original_painting_surface_list = original_painting_surface_list
+        self.budget = budget
+
+    def get_breakdown(self):
+        breakdown_list=[]
+        for painting_surface in self.budgeted_painting_surface_list:
+            breakdown_dict = painting_surface.get_breakdown()
+            breakdown_list.append(breakdown_dict)
+
+        return breakdown_list
+
+    def get_summary(self):
+        summary_dict_original_job = self.get_surface_list_summary_statistics(self.original_painting_surface_list)
+        summary_dict_budgeted_job = self.get_surface_list_summary_statistics(self.budgeted_painting_surface_list)
+
+        final_summary_dict = dict(
+            budget=self.budget,
+            total_budgeted_job_price=summary_dict_budgeted_job['total_price'],
+            total_surface_area_in_budget=summary_dict_budgeted_job['total_surface_area'],
+            unpainted_surface_area=summary_dict_original_job['total_surface_area']-summary_dict_budgeted_job['total_surface_area'],
+            cost_for_remaining_items=summary_dict_original_job['total_price']-summary_dict_budgeted_job['total_price'],
+        )
+        return final_summary_dict
+
+    @staticmethod
+    def get_surface_list_summary_statistics(surface_list):
+        total_price = 0
+        total_surface_area = 0
+        for painting_surface in surface_list:
+            total_price += painting_surface.get_total_price()
+            total_surface_area += painting_surface.surface.area
+        return dict(
+            total_price=total_price,
+            total_surface_area=total_surface_area,
+        )
 
 #TODO worry about units of paint and paint price when adding up for same paint
 

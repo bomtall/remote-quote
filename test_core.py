@@ -375,8 +375,10 @@ def test_job(args, kwargs, expected):
     'args, kwargs, expected',
     [
         ([[room_test_painting_surface, room_test_painting_surface_2]], dict(), [
-            {'total_price': 62, 'labour_price': 32, 'paint_price': 30, 'units_of_paint': 1},
-            {'total_price': 77.87, 'labour_price': 40, 'paint_price': 37.87, 'units_of_paint': 1}]),
+            {'surface_name': 'Wall', 'room_name': 'my room', 'total_price': 62, 'labour_price': 32, 'paint_price': 30,
+             'units_of_paint': 1, 'surface_area': 8},
+            {'surface_name': 'Wall', 'room_name': 'my room', 'total_price': 77.87, 'labour_price': 40, 'paint_price': 37.87,
+             'units_of_paint': 1, 'surface_area': 10}]),
 
     ],
 )
@@ -386,14 +388,15 @@ def test_room_breakdown(args, kwargs, expected):
     assert breakdown == expected
 
 
+
 @pytest.mark.parametrize(
     'args, kwargs, expected',
     [
         ([[room_1, room_1]], dict(), [
-            [{'total_price': 62, 'labour_price': 32, 'paint_price': 30, 'units_of_paint': 1},
-            {'total_price': 77.87, 'labour_price': 40, 'paint_price': 37.87, 'units_of_paint': 1}],
-            [{'total_price': 62, 'labour_price': 32, 'paint_price': 30, 'units_of_paint': 1},
-            {'total_price': 77.87, 'labour_price': 40, 'paint_price': 37.87, 'units_of_paint': 1}]]),
+            [{'surface_name': 'Wall', 'room_name': 'my room', 'total_price': 62, 'labour_price': 32, 'paint_price': 30, 'units_of_paint': 1, 'surface_area': 8},
+            {'surface_name': 'Wall', 'room_name': 'my room','total_price': 77.87, 'labour_price': 40, 'paint_price': 37.87, 'units_of_paint': 1, 'surface_area': 10}],
+            [{'surface_name': 'Wall', 'room_name': 'my room', 'total_price': 62, 'labour_price': 32, 'paint_price': 30, 'units_of_paint': 1, 'surface_area': 8},
+            {'surface_name': 'Wall', 'room_name': 'my room','total_price': 77.87, 'labour_price': 40, 'paint_price': 37.87, 'units_of_paint': 1, 'surface_area': 10}]]),
 
 
     ],
@@ -403,6 +406,62 @@ def test_job_breakdown(args, kwargs, expected):
     breakdown = job.get_breakdown()
     assert breakdown == expected
 
+job_1 = core.Job([room_1, room_2])
+
+@pytest.mark.parametrize(
+    'job, expected',
+    [
+        #total prices surface1=62 surface2=77.87 surface3=210.03 surface4=40.87 approx 8 10 20 1
+        (job_1, [room_test_painting_surface_4, room_test_painting_surface, room_test_painting_surface_2, room_test_painting_surface_3])
+
+    ],
+)
+def test_get_painting_surface_list(job, expected):
+    surface_list = job.get_painting_surface_list()
+    assert surface_list == expected
+
+@pytest.mark.parametrize(
+    'surface_list, expected_values, expected_costs',
+    [
+        #total prices surface1=62 surface2=77.87 surface3=210.03 surface4=40.87 approx
+        # areas of surfaces 1,2,3,4 respectively 8 10 20 1
+        (job_1.get_painting_surface_list(), [1, 8, 10, 20], [41, 62, 78, 211])
+
+    ],
+)
+def test_get_area_cost_lists(surface_list, expected_values, expected_costs):
+    values, costs = core.Job.get_area_cost_lists(surface_list)
+    assert values == expected_values
+    assert costs == expected_costs
 
 
+@pytest.mark.parametrize(
+    'job, budget, expected_budgeted_list',
+    [
+
+        (job_1, 300, [room_test_painting_surface_3, room_test_painting_surface_2])
+
+    ],
+)
+def test_get_optimised_job(job, budget, expected_budgeted_list):
+    optimised_job = job.get_optimised_job(budget)
+    assert optimised_job.budgeted_painting_surface_list == expected_budgeted_list
+
+
+@pytest.mark.parametrize(
+    'optimised_job, expected_summary_dict',
+    [
+
+        (job_1.get_optimised_job(300), {
+            'budget': 300,
+            'total_budgeted_job_price': 287.9,
+            'total_surface_area_in_budget': 30,
+            'unpainted_surface_area': 9,
+            'cost_for_remaining_items': 102.87})
+
+    ],
+)
+def test_get_summary(optimised_job, expected_summary_dict):
+    summary = optimised_job.get_summary()
+    assert summary == expected_summary_dict
 
