@@ -9,19 +9,23 @@ num_rooms_max = 5
 form_widgets_dict['dropdown_num_rooms'] = widgets.Dropdown(options=range(1, num_rooms_max + 1),
                                                                  description='Num Rooms:')
 
+def get_current_surface_widget_box():
+    selected_room_index = form_widgets_dict['tab'].selected_index
+    selected_surface_index = form_widgets_dict['rooms']['widget_dict_list'][selected_room_index]['tab'].selected_index
+    selected_surface_widget_box = \
+    form_widgets_dict['rooms']['widget_dict_list'][selected_room_index]['surfaces']['widget_dict_list'][
+        selected_surface_index]['surface_box']
+    return selected_surface_widget_box
 
 ############################################
 def on_click_paint_type_buttons(change):
-
     if change['type'] == 'change' and change['name'] == 'value':
-        selected_room_index = form_widgets_dict['tab'].selected_index
-        selected_surface_index = form_widgets_dict['rooms']['widget_dict_list'][selected_room_index]['tab'].selected_index
-        selected_surface_widget_dict = form_widgets_dict['rooms']['widget_dict_list'][selected_room_index]['surfaces']['widget_dict_list'][selected_surface_index]
-        paint_type_button_value = selected_surface_widget_dict['paint_type_buttons'].value
-        selected_surface_widget_dict['finish_dropdown'].get_finish_options(paint_type_button_value)
-
-
+        selected_surface_widget_box = get_current_surface_widget_box()
+        paint_type_button_value = selected_surface_widget_box.paint_type_buttons.value
+        selected_surface_widget_box.paint_finish_dropdown.get_finish_options(paint_type_button_value)
 #############################################
+
+
 
 def on_change_num_surfaces(num_surfaces_change):
     if num_surfaces_change['type'] == 'change' and num_surfaces_change['name'] == 'value':
@@ -34,12 +38,13 @@ def on_change_num_surfaces(num_surfaces_change):
         for surface_index in range(1, num_surfaces_change['new'] + 1):
             # Create dictionary of widgets which will be contained in the surface form
             widgets_surface_dict = dict()
+            widgets_surface_dict['surface_box'] = forms.SurfaceForm()
             #widgets_surface_dict['slider'] = forms.AreaInput()
             #widgets_surface_dict['text'] = forms.SurfaceSelector()
-            widgets_surface_dict['paint_type_buttons'] = forms.PaintTypeButtons()
-            widgets_surface_dict['finish_dropdown'] = forms.FinishChoices()
+            #widgets_surface_dict['paint_type_buttons'] = forms.PaintTypeButtons()
+            #widgets_surface_dict['finish_dropdown'] = forms.FinishChoices()
 
-            widgets_surface_dict['paint_type_buttons'].observe(on_click_paint_type_buttons)
+            widgets_surface_dict['surface_box'].paint_type_buttons.observe(on_click_paint_type_buttons)
 
             # Create the surface form widget
             widgets_surface_form = widgets.Box(list(widgets_surface_dict.values()))
