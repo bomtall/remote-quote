@@ -559,21 +559,35 @@ class OptimisedJob:
 #TODO worry about units of paint and paint price when adding up for same paint
 
 
+#add substrate into tabular interface interface
+#add downloader button and code
+# add optimise button and link functionality
+
+
+#optional stuff
+
+
+#add tooltips
+#add assumptions - including brand of defaults
+#add instructions (text box) maybe download complete instruction file
+#headings widgets.HTML
+#extend optimiser to rooms
+
+#disable number of rooms and surfaces dropdowns once chosen, add a refresh button
 #bring primer in to bare wood and mdf
-
-#paint brand/description
-#budget
-#assumptions
-
-
-
-#options to combine same paint type and colour used on multiple surfaces to avoid buying more paint that needed
+#option to apply trade discount to materials price get paint price discount in painting surface
 #flexible unit sizes or option to not round up units to get around multiple uses of same paints
-#option to provide materials/just call the labour price
-#option to apply trade discount to materials price
+#options to combine same paint type and colour used on multiple surfaces to avoid buying more paint that needed
 
-#multiple surfsces
-#multiple rooms
+
+
+
+
+
+
+
+
+
 
 
 #
