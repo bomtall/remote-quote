@@ -1,6 +1,7 @@
 import ipywidgets as widgets
 import core
 import tab_structure
+import paint_link
 
 SURFACE_TYPE_TO_CLASS_DICT = {
             'Ceiling': core.Ceiling,
@@ -15,6 +16,15 @@ SURFACE_TYPE_TO_CLASS_DICT = {
             'Wall': core.Wall,
         }
 
+PAINT_FINISH_TYPE_TO_PAINT_CLASS_DICT = {
+            'Vinyl Matt Emulsion': paint_link.MattEmulsionPaint,
+            'Diamond Matt Emulsion': paint_link.DiamondMattEmulsion,
+            'Silk Emulsion': paint_link.SilkEmulsionPaint,
+            'Eggshell': paint_link.OilEggshell,
+            'Gloss': paint_link.OilGloss,
+            'Satinwood': paint_link.OilSatin,
+
+}
 class AreaInput(widgets.BoundedFloatText):
     def __init__(self):
         super().__init__(
@@ -56,6 +66,7 @@ class PaintTypeButtons(widgets.ToggleButtons):
 
 
 
+
 class FinishChoices(widgets.Dropdown):
     def __init__(self):
         super().__init__(
@@ -63,7 +74,7 @@ class FinishChoices(widgets.Dropdown):
             value='Vinyl Matt Emulsion',
             description='Finish:',
             disabled=False,)
-
+        self.paint_finish_type_to_paint_class_dict = PAINT_FINISH_TYPE_TO_PAINT_CLASS_DICT
     def get_finish_options(self, paint_type):
         if paint_type == 'Emulsion Paint':
             self.layout.visibility = 'visible'
@@ -72,7 +83,80 @@ class FinishChoices(widgets.Dropdown):
             self.layout.visibility = 'visible'
             self.options = ['Eggshell', 'Gloss', 'Satinwood']
         elif paint_type == 'Custom Input':
+            self.options = ['Custom Input']
+            self.value = 'Custom Input'
             self.layout.visibility = 'hidden'
+
+
+    def get_paint_class_from_value(self):
+        if self.value in self.paint_finish_type_to_paint_class_dict.keys():
+            dict_key = self.value
+        else:
+            dict_key = 'Vinyl Matt Emulsion'
+        paint = self.paint_finish_type_to_paint_class_dict[dict_key]
+        return paint
+
+
+class PaintDetailsInputBox(widgets.HBox):
+    def __init__(self):
+        self.paint_price_input = PaintPriceInput()
+        self.paint_unit_input = PaintUnitInput()
+        self.paint_coverage_input = PaintCoverageInput()
+        self.paint_input_widget_list = [self.paint_price_input, self.paint_unit_input, self.paint_coverage_input]
+        super().__init__(self.paint_input_widget_list)
+        self.paint_finish_type_to_paint_class_dict = PAINT_FINISH_TYPE_TO_PAINT_CLASS_DICT
+
+    def toggle_paint_inputs(self, paint_type):
+        if paint_type == 'Custom Input':
+            self.paint_price_input.disabled=False
+            self.paint_unit_input.disabled = False
+            self.paint_coverage_input.disabled = False
+        else:
+            self.paint_price_input.disabled = True
+            self.paint_unit_input.disabled = True
+            self.paint_coverage_input.disabled = True
+
+    def toggle_paint_values(self, paint_finish):
+        if paint_finish != 'Custom Input':
+            paint = self.paint_finish_type_to_paint_class_dict[paint_finish]()
+            self.paint_price_input.value = paint.price
+            self.paint_unit_input.value = paint.unit
+            self.paint_coverage_input.value = paint.coverage
+
+
+
+class PaintPriceInput(widgets.BoundedFloatText):
+    def __init__(self):
+        super().__init__(
+            value=30,
+            min=0,
+            max=1000.0,
+            step=1.0,
+            description='£:',
+            disabled=True,
+            )
+
+class PaintUnitInput(widgets.BoundedFloatText):
+    def __init__(self):
+        super().__init__(
+            value=5,
+            min=0,
+            max=1000.0,
+            step=1.0,
+            description='Unit(L):',
+            disabled=True,
+            )
+
+class PaintCoverageInput(widgets.BoundedFloatText):
+    def __init__(self):
+        super().__init__(
+            value=50,
+            min=0,
+            max=2000.0,
+            step=1.0,
+            description='Coverage:',
+            disabled=True,
+            )
 
 class SurfaceForm(widgets.VBox):
     def __init__(self):
@@ -80,14 +164,29 @@ class SurfaceForm(widgets.VBox):
         self.surface_selector = SurfaceSelector()
         self.paint_type_buttons = PaintTypeButtons()
         self.paint_finish_dropdown = FinishChoices()
+        self.paint_inputs_box = PaintDetailsInputBox()
         self.widget_dict = {
             'area_input': self.area_input,
             'surface_selector': self.surface_selector,
             'paint_type_buttons': self.paint_type_buttons,
             'paint_finish_dropdown': self.paint_finish_dropdown,
+            'paint_inputs_box': self.paint_inputs_box,
         }
 
         super().__init__(list(self.widget_dict.values()))
+
+        self.paint_type_buttons.observe(self.toggle_finish_visibility, 'value')
+        self.paint_type_buttons.observe(self.toggle_paint_inputs, 'value')
+
+    def toggle_finish_visibility(self, change):
+        if change['new'] == 'Custom Input':
+            self.paint_finish_dropdown.layout.visibility = 'hidden'
+        else:
+            self.paint_finish_dropdown.layout.visibility = 'visible'
+
+    def toggle_paint_inputs(self, change):
+        self.paint_inputs_box.toggle_paint_inputs(change['new'])
+
 
 class EstimateButton(widgets.Button):
     def __init__(self):
@@ -112,6 +211,9 @@ class BudgetInput(widgets.BoundedFloatText):
             step=1.0,
             description='Budget £:',
             disabled=False,)
+
+
+
 
 
 
@@ -159,7 +261,20 @@ class RemoteQuoteForm(widgets.VBox):
         #return core.Wall(8)
 
     def get_paint(self, surface_dict):
-        return core.Paint(30, 5, 17)
+        paint_price = surface_dict['surface_box'].paint_inputs_box.paint_price_input.value
+        paint_unit = surface_dict['surface_box'].paint_inputs_box.paint_unit_input.value
+        paint_coverage = surface_dict['surface_box'].paint_inputs_box.paint_coverage_input.value
+        paint_class = surface_dict['surface_box'].paint_finish_dropdown.get_paint_class_from_value()
+        ##TODO move this into paint_type buttton class
+        if surface_dict['surface_box'].paint_type_buttons.value == 'Custom Input':
+            paint = paint_class(paint_price, paint_unit, paint_coverage)
+        else:
+            paint = paint_class()
+
+        return paint
+
+
+# return core.Paint(30, 5, 17)
 
 #return core.PaintingSurface(core.Wall(8), core.Paint(30, 5, 17))
 
@@ -168,6 +283,6 @@ class RemoteQuoteForm(widgets.VBox):
     def get_estimate(self, change):
         job = self.get_job()
         total_price = job.get_total_price()
-        self.output.value = f'{total_price}'
+        self.output.value = f'{total_price:.2f}'
 
 
