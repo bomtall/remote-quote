@@ -221,10 +221,10 @@ class Radiator(Surface):
 class Substrate:
     def __init__(
             self,
-            num_coats=None,
+            num_coats=1,
             porosity=None,
             condition=None,
-            coverage_adjustment=None,
+            coverage_adjustment=1,
             condition_assumption=None,
             primed=False
 
