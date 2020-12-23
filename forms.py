@@ -2,6 +2,7 @@ import ipywidgets as widgets
 import core
 import tab_structure
 import paint_link
+import base64
 
 SURFACE_TYPE_TO_CLASS_DICT = {
             'Ceiling': core.Ceiling,
@@ -404,12 +405,10 @@ class CalculateBox(widgets.HBox):
         self.estimate_button = EstimateButton()
         self.budget_input = BudgetInput()
         self.optimise_button = OptimiseButton()
-        self.download_button = DownloadButton()
         self.widget_dict = {
             'estimate_button': self.estimate_button,
             'budget_input': self.budget_input,
             'optimise_button': self.optimise_button,
-            'download_button':  self.download_button,
         }
         super().__init__(list(self.widget_dict.values()))
 
@@ -423,23 +422,15 @@ class EstimateButton(widgets.Button):
             icon='check')
         self.style.button_color='palegreen'
 
-class DownloadButton(widgets.Button):
-    def __init__(self):
-        super().__init__(
-            description='Download Quote',
-            disabled=False,
-            button_style='', # 'success', 'info', 'warning', 'danger' or ''
-            tooltip='Download a text file with your job breakdown',
-            icon='check')
-        self.style.button_color='lightblue'
 
-class BudgetInput(widgets.BoundedFloatText):
+
+class BudgetInput(widgets.BoundedIntText):
     def __init__(self):
         super().__init__(
-            value=10,
+            value=250,
             min=0,
-            max=500000.0,
-            step=1.0,
+            max=500000,
+            step=1,
             description='Budget £:',
             disabled=False,)
 
@@ -475,15 +466,57 @@ class RemoteQuoteForm(widgets.VBox):
         self.calculate_box = CalculateBox()
         self.calculate_box.estimate_button.on_click(self.get_estimate)
         self.output = widgets.HTML()
-
-        super().__init__([self.form_widgets_dict['dropdown_num_rooms'], self.form_widgets_dict['tab'], self.calculate_box, self.output])
+        self.calculate_box.optimise_button.on_click(self.get_optimised_job)
+        self.optimised_output = widgets.HTML()
+        # self.calculate_box.download_button.on_click(self.get_download)
+        self.download_output = widgets.HTML()
+        super().__init__([self.form_widgets_dict['dropdown_num_rooms'], self.form_widgets_dict['tab'],
+                          self.calculate_box, self.output, self.optimised_output, self.download_output])
         self.job = core.Job([])
+
+    def get_download(self):
+        res = f'''{self.job.get_breakdown()}
+
+        Your RemoteQuote'''
+        # Total {job_1.get_total_price():.2f}
+        # + VAT (If applicable) {(job_1.get_total_price() / 100) * 120 :.2f}
+
+
+        # FILE
+        filename = 'quote.txt'
+        b64 = base64.b64encode(res.encode())
+        payload = b64.decode()
+
+        # BUTTONS
+        html_buttons = '''<html>
+        <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        </head>
+        <body>
+        <a download="{filename}" href="data:text/csv;base64,{payload}" download>
+        <button class="p-Widget jupyter-widgets jupyter-button widget-button mod-info">Download Quote</button>
+        </a>
+        </body>
+        </html>
+        '''
+
+        html_button = html_buttons.format(payload=payload, filename=filename)
+        self.download_output.value = html_button
+
+
+
+    def get_optimised_job(self, change):
+        optimised_job = self.job.get_optimised_job(self.calculate_box.budget_input.value)
+        self.optimised_output.value = f'{optimised_job.get_summary()}'
 
     def get_estimate(self, change):
         try:
-            job = self.get_job()
-            total_price = job.get_total_price()
+            self.job = self.get_job()
+            total_price = self.job.get_total_price()
             self.output.value = f'{total_price:.2f}'
+
+            self.get_download()
+
         except KeyError as e:
             if e.args[0] == 'widget_dict_list':
                 self.output.value = 'Rooms with unselected surfaces. Please select.'
@@ -550,7 +583,17 @@ class RemoteQuoteForm(widgets.VBox):
             paint = paint_class()
         return paint
 
-
+# class OptimisedJobWidget(widgets.Textarea):
+#     def __init__(self):
+#         super().__init__(
+#     value='',
+#     placeholder='Optimise',
+#     description='Optimised Budget:',
+#     disabled=False
+# )
+#
+#     def display_optimisation(self):
+#         ...
 
 
 

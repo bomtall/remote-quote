@@ -44,7 +44,7 @@ def on_change_num_surfaces(num_surfaces_change):
             widgets_surface_dict['surface_box'].paint_form.paint_type_buttons.observe(on_click_paint_type_buttons)
 
             # Create the surface form widget
-            widgets_surface_form = widgets.Box(list(widgets_surface_dict.values()))
+            widgets_surface_form = widgets.VBox(list(widgets_surface_dict.values()))
 
             # Put the surface widgets and surface form inside of the global level dictionary for the whole form
             # to be able to reference them in callbacks
@@ -89,7 +89,7 @@ def on_change_num_rooms(num_rooms_change):
             room_widgets_surface_form_dict['dropdown_num_surfaces'].observe(on_change_num_surfaces)
 
             # making the widget for the form inside room tab
-            widgets_room_form = widgets.Box([room_widgets_surface_form_dict['dropdown_num_surfaces'],
+            widgets_room_form = widgets.VBox([room_widgets_surface_form_dict['dropdown_num_surfaces'],
                                              room_widgets_surface_form_dict['tab']])
 
             # Put the room widgets and room form inside of the global level dictionary for the whole form
