@@ -2,12 +2,17 @@ from numbers import Number
 import math
 import knapsack
 
-# ======================================================================================================================
-# ======================================================================================================================
-# ======================================================================================================================
-# surface
+
+# ----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------ Global variables ----------------------------------------------------------
+
+CONDITION_OPTIONS = ['good', 'okay', 'poor']
 
 
+# ----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------ Surface class -------------------------------------------------------------
 class Surface:
     def __init__(
             self,
@@ -17,6 +22,7 @@ class Surface:
             labour_adjustment=None,
             substrate=None,
             design=None,
+            design_options=None,
             description=None,
             name=None,
             num_panes=None,
@@ -41,45 +47,21 @@ class Surface:
         if substrate is None:
             substrate = PrePaintedEmulsion()
 
-
-
         self.area = area
         self.length = length
         self.width = width
         self.labour_adjustment = labour_adjustment
         self.substrate = substrate
         self.design = design
+        self.design_options = design_options
         self.description = description
         self.name = name
         self.num_panes = num_panes
         self.room_name = room_name
 
 
-
-
-
-
-class ConditionAssumptions():
-    def __init__(self):
-        poor = '''Poor condition is where lots of preparation is required. Surfaces exhibit cracking, gaps not filled,
-        previously poorly painted with drips and fibres in the surface paint.'''
-        okay = '''Okay condition is where some small amount of preparation is needed, 
-        there is very little filling and sanding required'''
-        good = '''Good condition is where there is almost no preparation required'''
-
-
-        self.poor = poor
-        self.okay = okay
-        self.good = good
-
-    def get_condition_assumption(self, condition):
-        if condition == 'poor':
-            return 'poor_example.jpg'
-        else:
-            return 'poor_example.jpg'
-
-
-
+# ----------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------ Surface subclasses --------------------------------------------------------
 class Wall(Surface):
     def __init__(self, *args, **kwargs):
         description = 'An interior wall'
@@ -101,58 +83,60 @@ class Door(Surface):
     def __init__(self, *args, labour_adjustment=None, design=None, num_panes=None, **kwargs):
         description = 'One side of an interior door'
         name = 'Door'
+        design_options = ['Panelled', 'Flat door', 'Cutting in']
 
-        if design == 'cutting in' and num_panes is None:
+        if design == 'Cutting in' and num_panes is None:
             num_panes = 1
         elif num_panes is None:
-            num_panes=0
+            num_panes = 0
 
-        assert design in ['panelled', 'flat door',
-                          'cutting in', None], 'input needs to be "panelled", "flat door", "cutting in" or None'
+        assert design in (design_options + [None]), 'input needs to be "Panelled", "Flat door", "Cutting in" or None'
         assert isinstance(num_panes, int) and num_panes >= 0, 'Input "num_panes" needs to be a non-negative integer'
 
-
         if num_panes > 0 and design is None:
-            design = 'cutting in'
+            design = 'Cutting in'
         if design is None:
-            design = 'flat door'
+            design = 'Flat door'
 
-        assert (num_panes > 0 and design == 'cutting in') or \
-               (num_panes == 0 and design in ['panelled', 'flat door', None]), 'Only "cutting in" doors have panes > 0'
-
+        assert (num_panes > 0 and design == 'Cutting in') or \
+               (num_panes == 0 and design in ['Panelled', 'Flat door', None]), 'Only "Cutting in" doors have panes > 0'
 
         if labour_adjustment is None:
             labour_adjustment = 2
-            if design == 'panelled':
+            if design == 'Panelled':
                 labour_adjustment = 2.1
-            elif design == 'cutting in':
+            elif design == 'Cutting in':
                 if num_panes < 3:
                     labour_adjustment = 2.5
                 else:
                     labour_adjustment = min(3/2 * (num_panes + 1), 15)
 
-        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, design=design, description=description,
-                         name=name, num_panes=num_panes)
+        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, design=design,
+                         design_options=design_options, description=description, name=name, num_panes=num_panes)
 
 
 class Doorframe(Surface):
     def __init__(self, *args, labour_adjustment=None, design=None, **kwargs):
         description = 'Room side of door frame'
         name = 'Door Frame'
+        design_options = ['Standard', 'Victorian', 'Elaborate']
+
         if design is None:
-            design = 'standard'
+            design = design_options[0]
         else:
-            assert design in ['standard', 'victorian', 'elaborate'],\
-                'input needs to be "standard", "victorian", "elaborate" or None'
+            assert design in design_options,\
+                'input needs to be "Standard", "Victorian", "Elaborate" or None'
 
         if labour_adjustment is None:
             labour_adjustment = 2
-            if design == 'victorian':
+            if design == 'Victorian':
                 labour_adjustment = 2.1
-            elif design == 'elaborate':
+            elif design == 'Elaborate':
                 labour_adjustment = 2.2
-        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, design=design, description=description,\
-                         name=name)
+
+        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, design=design,
+                         design_options=design_options, description=description, name=name)
+
 
 class Skirtingboard(Surface):
     def __init__(self, *args, labour_adjustment=None, **kwargs):
@@ -161,6 +145,7 @@ class Skirtingboard(Surface):
         if labour_adjustment is None:
             labour_adjustment = 1.1
         super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, description=description, name=name)
+
 
 class Window(Surface):
     def __init__(self, *args, labour_adjustment=None, num_panes=1, **kwargs):
@@ -182,24 +167,29 @@ class Windowsill(Surface):
             labour_adjustment = 1.1
         super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, description=description, name=name)
 
+
 class Spindle(Surface):
     def __init__(self, *args, labour_adjustment=None, design=None, **kwargs):
         description = 'Vertical bars underneath a handrail'
         name = 'Spindle'
+        design_options = ['Square', 'Shaped', 'Elaborate']
+
         if design is None:
-            design = 'square'
+            design = design_options[0]
         else:
-            assert design in ['square', 'shaped', 'elaborate'], \
-                'input needs to be "square", "shaped", "elaborate" or None'
+            assert design in design_options, \
+                'input needs to be "Square", "Shaped", "Elaborate" or None'
 
         if labour_adjustment is None:
             labour_adjustment = 2
-            if design == 'shaped':
+            if design == 'Shaped':
                 labour_adjustment = 2.1
-            elif design == 'elaborate':
+            elif design == 'Elaborate':
                 labour_adjustment = 2.2
-        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, design=design, description=description,\
-                         name=name)
+
+        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, design=design,
+                         design_options=design_options, description=description, name=name)
+
 
 class ElaborateCornice(Surface):
     def __init__(self, *args, labour_adjustment=None, **kwargs):
@@ -208,6 +198,7 @@ class ElaborateCornice(Surface):
         if labour_adjustment is None:
             labour_adjustment = 2
         super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, description=description, name=name)
+
 
 class Radiator(Surface):
     def __init__(self, *args, labour_adjustment=None, **kwargs):
@@ -218,6 +209,9 @@ class Radiator(Surface):
         super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, description=description, name=name)
 
 
+# ----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------ Substrate class -----------------------------------------------------------
 class Substrate:
     def __init__(
             self,
@@ -229,12 +223,16 @@ class Substrate:
             primed=False
 
     ):
-        assert condition in [None, 'poor', 'okay', 'good'], 'Input "condition" needs to be "poor", "okay", "good" or None'
+        self.condition_options = CONDITION_OPTIONS
+
+        assert condition in self.condition_options + [None], \
+            'Input "condition" needs to be "poor", "okay", "good" or None'
+
         if condition is None:
             condition = 'good'
         assert isinstance(num_coats, int) or num_coats is None, 'Input "num_coats" needs to be an integer or None'
-        assert (isinstance(coverage_adjustment, Number) and coverage_adjustment > 0.0) or (coverage_adjustment is None),\
-            'Input needs to be numeric and > 0, or None'
+        assert (isinstance(coverage_adjustment, Number) and coverage_adjustment > 0.0) \
+               or (coverage_adjustment is None), 'Input needs to be numeric and > 0, or None'
 
         if coverage_adjustment is None:
             coverage_adjustment = 1
@@ -242,7 +240,7 @@ class Substrate:
         if condition_assumption is None:
             condition_assumption = ConditionAssumptions()
 
-        ##TODO add in validation for porosity
+        # TODO add in validation for porosity
 
         self.num_coats = num_coats
         self.porosity = porosity
@@ -250,7 +248,7 @@ class Substrate:
         self.preparation_factor = self.get_preparation_factor()
         self.coverage_adjustment = coverage_adjustment
         self.condition_assumption = condition_assumption
-        self.primed=False
+        self.primed = False
 
     def get_preparation_factor(self):
         if self.condition == 'poor':
@@ -263,8 +261,8 @@ class Substrate:
         return preparation_factor
 
 
-
-
+# ----------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------ Substrate subclasses-------------------------------------------------------
 class Plaster(Substrate):
     def __init__(self, *args, num_coats=None, coverage_adjustment=None, **kwargs):
         if num_coats is None:
@@ -283,7 +281,8 @@ class PrePaintedEmulsion(Substrate):
             num_coats = 1
         if coverage_adjustment is None:
             coverage_adjustment = 1
-        super().__init__(*args, **kwargs, num_coats=num_coats, condition=condition, coverage_adjustment=coverage_adjustment)
+        super().__init__(*args, **kwargs, num_coats=num_coats, condition=condition,
+                         coverage_adjustment=coverage_adjustment)
 
 
 class PrePaintedWood(Substrate):
@@ -294,67 +293,50 @@ class PrePaintedWood(Substrate):
             num_coats = 1
         if coverage_adjustment is None:
             coverage_adjustment = 1
-        super().__init__(*args, **kwargs, num_coats=num_coats, condition=condition, coverage_adjustment=coverage_adjustment)
+        super().__init__(*args, **kwargs, num_coats=num_coats, condition=condition,
+                         coverage_adjustment=coverage_adjustment)
 
 
 class NewLiningPaper(Substrate):
-    def __init__(self, *args, num_coats=None, condition=None, coverage_adjustment=None, **kwargs):
+    def __init__(self, *args, num_coats=None, coverage_adjustment=None, **kwargs):
         if num_coats is None:
             num_coats = 2
-        if condition is None:
-            condition = 'good'
         if coverage_adjustment is None:
             coverage_adjustment = 1.2
 
-        super().__init__(*args, **kwargs, num_coats=num_coats, coverage_adjustment=coverage_adjustment, condition=condition)
+        super().__init__(*args, **kwargs, num_coats=num_coats, coverage_adjustment=coverage_adjustment)
+
         self.preparation_factor = self.get_preparation_factor()
 
 
 class Mdf(Substrate):
-    def __init__(self, *args, num_coats=None, condition=None, coverage_adjustment=None, primed=False, **kwargs):
+    def __init__(self, *args, num_coats=None, coverage_adjustment=None, primed=False, **kwargs):
         if num_coats is None:
             num_coats = 3
         if primed is True:
             num_coats = 2
 
-        if condition is None:
-            condition = 'good'
         if coverage_adjustment is None:
             coverage_adjustment = 1.2
 
-        super().__init__(*args, **kwargs, num_coats=num_coats, condition=condition, coverage_adjustment=coverage_adjustment, primed=primed)
+        super().__init__(*args, **kwargs, num_coats=num_coats, coverage_adjustment=coverage_adjustment, primed=primed)
+
         self.preparation_factor = self.get_preparation_factor()
 
 
-
-
 class NewWood(Substrate):
-    def __init__(self, *args, num_coats=None, condition=None, coverage_adjustment=None, **kwargs):
+    def __init__(self, *args, num_coats=None, coverage_adjustment=None, **kwargs):
         if num_coats is None:
             num_coats = 3
-        if condition is None:
-            condition = 'good'
         if coverage_adjustment is None:
             coverage_adjustment = 1.05
 
-        super().__init__(*args, **kwargs, num_coats=num_coats, condition=condition, coverage_adjustment=coverage_adjustment)
+        super().__init__(*args, **kwargs, num_coats=num_coats, coverage_adjustment=coverage_adjustment)
 
 
-
-
-
-def get_total_surface_area(surfaces):
-    total_surface_area = 0
-    for surface in surfaces:
-        total_surface_area += surface.area
-    return total_surface_area
-
-
-# ======================================================================================================================
-# ======================================================================================================================
-# ======================================================================================================================
-# PAINT
-
+# ----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
+# ------------------------------------------------------ Paint ---------------------------------------------------------
 class Paint:
     def __init__(self, price, unit, coverage,):
 
@@ -367,14 +349,10 @@ class Paint:
         self.coverage = coverage
 
 
-
-# ======================================================================================================================
-# ======================================================================================================================
-# ======================================================================================================================
-# JOB
-
-#TODO add validation for inputs to painting surface
-
+# ----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------- Painting Surface -----------------------------------------------------
+# TODO add validation for inputs to painting surface
 class PaintingSurface:
     def __init__(self, surface, paint, labour_price_msq=None):
         if labour_price_msq is None:
@@ -384,12 +362,13 @@ class PaintingSurface:
         self.paint = paint
         self.labour_price_msq = labour_price_msq
 
-#TODO make calculation reflect unit and coverage properly
-        #if surface.substrate in [NewWood, MDF, ]
+# TODO make calculation reflect unit and coverage properly
+        # if surface.substrate in [NewWood, MDF, ]
 
     def get_units_of_paint(self):
-        units_of_paint = math.ceil((self.surface.area /
-            (self.paint.coverage/self.surface.substrate.coverage_adjustment)) * self.surface.substrate.num_coats)
+        units_of_paint = math.ceil(
+            (self.surface.area / (self.paint.coverage / self.surface.substrate.coverage_adjustment))
+            * self.surface.substrate.num_coats)
         return units_of_paint
 
     def get_paint_price(self):
@@ -405,73 +384,73 @@ class PaintingSurface:
         total_price = self.get_labour_price() + self.get_paint_price()
         return total_price
 
-
     def get_breakdown(self):
-
         breakdown = dict(
-            surface_name = self.surface.name,
-            room_name = self.surface.room_name,
-            total_price = self.get_total_price(),
-            labour_price = self.get_labour_price(),
-            paint_price = self.get_paint_price(),
-            units_of_paint = self.get_units_of_paint(),
-            surface_area = self.surface.area,
+            surface_name=self.surface.name,
+            room_name=self.surface.room_name,
+            total_price=self.get_total_price(),
+            labour_price=self.get_labour_price(),
+            paint_price=self.get_paint_price(),
+            units_of_paint=self.get_units_of_paint(),
+            surface_area=self.surface.area,
         )
         return breakdown
 
 
+# ----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
+# -------------------------------------------------- Room --------------------------------------------------------------
 class Room:
-     def __init__(self, painting_surfaces, name=None):
-
+    def __init__(self, painting_surfaces, name=None):
         if name is None:
-            name='my room'
+            name = 'my room'
 
         self.painting_surfaces = painting_surfaces
         self.name = name
 
-        #adding the room name to the surface name
-
+        # adding the room name to the surface name
         for painting_surface in self.painting_surfaces:
             painting_surface.surface.room_name = self.name
 
+    def get_paint_price(self):
+        room_paint_price = 0
+        for painting_surface in self.painting_surfaces:
+            room_paint_price += painting_surface.get_paint_price()
+        return room_paint_price
+
+    def get_labour_price(self):
+        room_labour_price = 0
+        for painting_surface in self.painting_surfaces:
+            room_labour_price += painting_surface.get_labour_price()
+        return room_labour_price
+
+    def get_total_price(self):
+        room_total_price = 0
+        for painting_surface in self.painting_surfaces:
+            room_total_price += painting_surface.get_total_price()
+        return room_total_price
+
+    def get_breakdown(self):
+        breakdown_list = []
+
+        for painting_surface in self.painting_surfaces:
+            breakdown_dict = painting_surface.get_breakdown()
+            breakdown_list.append(breakdown_dict)
+
+        return breakdown_list
 
 
-     def get_paint_price(self):
-         room_paint_price = 0
-         for painting_surface in self.painting_surfaces:
-             room_paint_price += painting_surface.get_paint_price()
-         return room_paint_price
-
-     def get_labour_price(self):
-         room_labour_price = 0
-         for painting_surface in self.painting_surfaces:
-             room_labour_price += painting_surface.get_labour_price()
-         return room_labour_price
-
-     def get_total_price(self):
-         room_total_price = 0
-         for painting_surface in self.painting_surfaces:
-             room_total_price += painting_surface.get_total_price()
-         return room_total_price
-
-     def get_breakdown(self):
-         breakdown_list=[]
-
-         for painting_surface in self.painting_surfaces:
-             breakdown_dict = painting_surface.get_breakdown()
-             breakdown_list.append(breakdown_dict)
-
-
-         return breakdown_list
-
-
+# ----------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
+# -------------------------------------------------- Job ---------------------------------------------------------------
 class Job:
     def __init__(self, rooms, name=None):
         self.rooms = rooms
-        self.name = name
 
         if name is None:
-            name='my job'
+            name = 'my job'
+
+        self.name = name
 
     def get_total_price(self):
         total_job_price = 0
@@ -517,14 +496,17 @@ class Job:
         optimal_surface_list = [surface_list[i] for i in optimal_index_list]
         return OptimisedJob(optimal_surface_list, surface_list, budget)
 
+
+# ----------------------------------------------------------------------------------------------------------------------
+# -------------------------------------------------- Optimised Job -----------------------------------------------------
 class OptimisedJob:
     def __init__(self, budgeted_painting_surface_list, original_painting_surface_list, budget):
-        self.budgeted_painting_surface_list = sorted(budgeted_painting_surface_list, key= lambda x:x.surface.room_name)
+        self.budgeted_painting_surface_list = sorted(budgeted_painting_surface_list, key=lambda x: x.surface.room_name)
         self.original_painting_surface_list = original_painting_surface_list
         self.budget = budget
 
     def get_breakdown(self):
-        breakdown_list=[]
+        breakdown_list = []
         for painting_surface in self.budgeted_painting_surface_list:
             breakdown_dict = painting_surface.get_breakdown()
             breakdown_list.append(breakdown_dict)
@@ -539,7 +521,8 @@ class OptimisedJob:
             budget=self.budget,
             total_budgeted_job_price=summary_dict_budgeted_job['total_price'],
             total_surface_area_in_budget=summary_dict_budgeted_job['total_surface_area'],
-            unpainted_surface_area=summary_dict_original_job['total_surface_area']-summary_dict_budgeted_job['total_surface_area'],
+            unpainted_surface_area=
+            summary_dict_original_job['total_surface_area']-summary_dict_budgeted_job['total_surface_area'],
             cost_for_remaining_items=summary_dict_original_job['total_price']-summary_dict_budgeted_job['total_price'],
         )
         return final_summary_dict
@@ -555,39 +538,47 @@ class OptimisedJob:
             total_price=total_price,
             total_surface_area=total_surface_area,
         )
-
-#TODO worry about units of paint and paint price when adding up for same paint
-
-
-#add substrate into tabular interface interface
-#add downloader button and code
-# add optimise button and link functionality
+# TODO worry about units of paint and paint price when adding up for same paint
 
 
-#optional stuff
+# ----------------------------------------------------------------------------------------------------------------------
+# -------------------------------------------------- Other things ------------------------------------------------------
+def get_total_surface_area(surfaces):
+    total_surface_area = 0
+    for surface in surfaces:
+        total_surface_area += surface.area
+    return total_surface_area
 
 
-#add tooltips
-#add assumptions - including brand of defaults
-#add instructions (text box) maybe download complete instruction file
-#headings widgets.HTML
-#extend optimiser to rooms
+class ConditionAssumptions():
+    def __init__(self):
+        poor = '''Poor condition is where lots of preparation is required. Surfaces exhibit cracking, gaps not filled,
+        previously poorly painted with drips and fibres in the surface paint.'''
+        okay = '''Okay condition is where some small amount of preparation is needed, 
+        there is very little filling and sanding required'''
+        good = '''Good condition is where there is almost no preparation required'''
 
-#disable number of rooms and surfaces dropdowns once chosen, add a refresh button
-#bring primer in to bare wood and mdf
-#option to apply trade discount to materials price get paint price discount in painting surface
-#flexible unit sizes or option to not round up units to get around multiple uses of same paints
-#options to combine same paint type and colour used on multiple surfaces to avoid buying more paint that needed
+        self.poor = poor
+        self.okay = okay
+        self.good = good
 
+    @staticmethod
+    def get_condition_assumption(condition):
+        if condition == 'poor':
+            return 'poor_example.jpg'
+        else:
+            return 'poor_example.jpg'
 
+# optional stuff
 
+# add tooltips
+# add assumptions - including brand of defaults
+# add instructions (text box) maybe download complete instruction file
+# headings widgets.HTML
+# extend optimiser to rooms
 
-
-
-
-
-
-
-
-
-#
+# disable number of rooms and surfaces dropdowns once chosen, add a refresh button
+# bring primer in to bare wood and mdf
+# option to apply trade discount to materials price get paint price discount in painting surface
+# flexible unit sizes or option to not round up units to get around multiple uses of same paints
+# options to combine same paint type and colour used on multiple surfaces to avoid buying more paint that needed

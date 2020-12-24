@@ -1,36 +1,32 @@
 import ipywidgets as widgets
 import forms
 
+
+# ---------------------------------------------- Initialise form widgets dict ------------------------------------------
+
 form_widgets_dict = dict()
-form_widgets_dict['tab'] = widgets.Tab()
-form_widgets_dict['rooms'] = dict()
 
-num_rooms_max = 5
-form_widgets_dict['dropdown_num_rooms'] = widgets.Dropdown(options=range(1, num_rooms_max + 1),
-                                                                 description='Num Rooms:')
+def initialise_form_widgets():
+    form_widgets_dict = dict()
+    form_widgets_dict['tab'] = widgets.Tab()
+    form_widgets_dict['rooms'] = dict()
 
-def get_current_surface_widget_box():
-    selected_room_index = form_widgets_dict['tab'].selected_index
-    selected_surface_index = form_widgets_dict['rooms']['widget_dict_list'][selected_room_index]['tab'].selected_index
-    selected_surface_widget_box = \
-    form_widgets_dict['rooms']['widget_dict_list'][selected_room_index]['surfaces']['widget_dict_list'][
-        selected_surface_index]['surface_box']
-    return selected_surface_widget_box
-
-############################################
-def on_click_paint_type_buttons(change):
-    if change['type'] == 'change' and change['name'] == 'value':
-        selected_surface_widget_box = get_current_surface_widget_box()
-        paint_type_button_value = selected_surface_widget_box.paint_form.paint_type_buttons.value
-        selected_surface_widget_box.paint_form.paint_finish_dropdown.get_finish_options(paint_type_button_value)
-#############################################
+    num_rooms_max = 5
+    form_widgets_dict['dropdown_num_rooms'] = widgets.Dropdown(
+        options=range(0, num_rooms_max + 1),
+        description='Num Rooms:',
+        value=0,
+    )
+    return form_widgets_dict
 
 
+form_widgets_dict = initialise_form_widgets()
 
+# ----------------------------------------------------------------------------------------------------------------------
+# --------------------------------------- Callback function to create surface tabs--------------------------------------
 def on_change_num_surfaces(num_surfaces_change):
     if num_surfaces_change['type'] == 'change' and num_surfaces_change['name'] == 'value':
         selected_room_index = form_widgets_dict['tab'].selected_index
-        selected_room = selected_room_index + 1
 
         # creating form and widget list of dictionaries for each of the surfaces inside selected room index
         form_widgets_dict['rooms']['widget_dict_list'][selected_room_index]['surfaces']['form_list'] = []
@@ -39,9 +35,6 @@ def on_change_num_surfaces(num_surfaces_change):
             # Create dictionary of widgets which will be contained in the surface form
             widgets_surface_dict = dict()
             widgets_surface_dict['surface_box'] = forms.SurfaceBox()
-
-
-            widgets_surface_dict['surface_box'].paint_form.paint_type_buttons.observe(on_click_paint_type_buttons)
 
             # Create the surface form widget
             widgets_surface_form = widgets.VBox(list(widgets_surface_dict.values()))
@@ -59,14 +52,16 @@ def on_change_num_surfaces(num_surfaces_change):
 
         # setting titles of surface tabs
         for i in range(len(form_widgets_dict['rooms']['widget_dict_list'][selected_room_index]['tab'].children)):
-            form_widgets_dict['rooms']['widget_dict_list'][selected_room_index]['tab'].set_title(title=
-                                                                                                 'Surface' + str(i + 1),
-                                                                                                 index=i)
-            ############################################################################
+            form_widgets_dict['rooms']['widget_dict_list'][selected_room_index]['tab'].set_title(
+                title='Surface' + str(i + 1),
+                index=i
+            )
 
 
+# ----------------------------------------------------------------------------------------------------------------------
+# --------------------------------------- Callback function to create room tabs ----------------------------------------
 def on_change_num_rooms(num_rooms_change):
-    # fuction responding to number of rooms dropdown to create rooms.
+    # function responding to number of rooms dropdown to create rooms.
     if num_rooms_change['type'] == 'change' and num_rooms_change['name'] == 'value':
 
         # creation of form and list of widget dictionaries for each room
@@ -83,8 +78,10 @@ def on_change_num_rooms(num_rooms_change):
             # creation of dropdown to select number of surfaces
             num_surfaces_max = 5
             room_widgets_surface_form_dict['dropdown_num_surfaces'] = widgets.Dropdown(
-                options=range(1, num_surfaces_max + 1),
-                description='Num Surfaces:')
+                options=range(0, num_surfaces_max + 1),
+                description='Num Surfaces:',
+                value=0,
+            )
             # calling function on change of dropdown
             room_widgets_surface_form_dict['dropdown_num_surfaces'].observe(on_change_num_surfaces)
 
@@ -103,9 +100,3 @@ def on_change_num_rooms(num_rooms_change):
         # Setting titles for the room tabs
         for i in range(len(form_widgets_dict['tab'].children)):
             form_widgets_dict['tab'].set_title(title='Room' + str(i + 1), index=i)
-
-###############################################################################################################
-
-
-
-

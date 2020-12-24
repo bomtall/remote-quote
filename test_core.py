@@ -61,25 +61,25 @@ def test_surface_error(args, kwargs, error_type, error_message):
         ([1], dict(), core.Ceiling, 1.1),
         ([1], dict(), core.Door, 2),
         ([1], dict(labour_adjustment=2.5), core.Door, 2.5),
-        ([1], dict(design='flat door'), core.Door, 2),
-        ([1], dict(design='panelled'), core.Door, 2.1),
-        ([1], dict(design='cutting in', num_panes=2), core.Door, 2.5),
+        ([1], dict(design='Flat door'), core.Door, 2),
+        ([1], dict(design='Panelled'), core.Door, 2.1),
+        ([1], dict(design='Cutting in', num_panes=2), core.Door, 2.5),
         ([1], dict(num_panes=12), core.Door, 15),
         ([1], dict(num_panes=6), core.Door, 10.5),
         ([1], dict(), core.Doorframe, 2),
         ([1], dict(labour_adjustment=2.5), core.Doorframe, 2.5),
-        ([1], dict(design='standard'), core.Doorframe, 2),
-        ([1], dict(design='victorian'), core.Doorframe, 2.1),
-        ([1], dict(design='elaborate'), core.Doorframe, 2.2),
+        ([1], dict(design='Standard'), core.Doorframe, 2),
+        ([1], dict(design='Victorian'), core.Doorframe, 2.1),
+        ([1], dict(design='Elaborate'), core.Doorframe, 2.2),
         ([1], dict(), core.Skirtingboard, 1.1),
         ([1], dict(), core.Window, 2),
         ([1], dict(num_panes=4), core.Window, 8),
         ([1], dict(), core.Windowsill, 1.1),
         ([1], dict(), core.Spindle, 2),
         ([1], dict(labour_adjustment=3), core.Spindle, 3),
-        ([1], dict(design='square'), core.Spindle, 2),
-        ([1], dict(design='shaped'), core.Spindle, 2.1),
-        ([1], dict(design='elaborate'), core.Spindle, 2.2),
+        ([1], dict(design='Square'), core.Spindle, 2),
+        ([1], dict(design='Shaped'), core.Spindle, 2.1),
+        ([1], dict(design='Elaborate'), core.Spindle, 2.2),
         ([1], dict(), core.ElaborateCornice, 2),
         ([1], dict(), core.Radiator, 2),
 
@@ -167,17 +167,17 @@ def test_ceiling(args, kwargs, expected):
     'args, kwargs, surface_class, expected',
     [
         # Testing design property in surface subclasses
-        ([1], dict(design='panelled'), core.Door, 'panelled'),
-        ([1], dict(), core.Door, 'flat door'),
-        ([1], dict(design='cutting in'), core.Door, 'cutting in'),
-        ([1], dict(), core.Doorframe, 'standard'),
-        ([1], dict(design='standard'), core.Doorframe, 'standard'),
-        ([1], dict(design='victorian'), core.Doorframe, 'victorian'),
-        ([1], dict(design='elaborate'), core.Doorframe, 'elaborate'),
-        ([1], dict(), core.Spindle, 'square'),
-        ([1], dict(design='square'), core.Spindle, 'square'),
-        ([1], dict(design='shaped'), core.Spindle, 'shaped'),
-        ([1], dict(design='elaborate'), core.Spindle, 'elaborate'),
+        ([1], dict(design='Panelled'), core.Door, 'Panelled'),
+        ([1], dict(), core.Door, 'Flat door'),
+        ([1], dict(design='Cutting in'), core.Door, 'Cutting in'),
+        ([1], dict(), core.Doorframe, 'Standard'),
+        ([1], dict(design='Standard'), core.Doorframe, 'Standard'),
+        ([1], dict(design='Victorian'), core.Doorframe, 'Victorian'),
+        ([1], dict(design='Elaborate'), core.Doorframe, 'Elaborate'),
+        ([1], dict(), core.Spindle, 'Square'),
+        ([1], dict(design='Square'), core.Spindle, 'Square'),
+        ([1], dict(design='Shaped'), core.Spindle, 'Shaped'),
+        ([1], dict(design='Elaborate'), core.Spindle, 'Elaborate'),
     ],
 )
 def test_door_design(args, kwargs, surface_class, expected):
@@ -188,14 +188,14 @@ def test_door_design(args, kwargs, surface_class, expected):
     'args, kwargs, surface_class, error_type, error_message',
     [
         # Testing class validations
-        ([1], dict(design='fancy'), core.Door, AssertionError, 'input needs to be "panelled", "flat door", "cutting in" or None'),
-        ([1], dict(design='fancy'), core.Doorframe, AssertionError, 'input needs to be "standard", "victorian", "elaborate" or None'),
-        ([1], dict(design='fancy'), core.Spindle, AssertionError, 'input needs to be "square", "shaped", "elaborate" or None'),
+        ([1], dict(design='fancy'), core.Door, AssertionError, 'input needs to be "Panelled", "Flat door", "Cutting in" or None'),
+        ([1], dict(design='fancy'), core.Doorframe, AssertionError, 'input needs to be "Standard", "Victorian", "Elaborate" or None'),
+        ([1], dict(design='fancy'), core.Spindle, AssertionError, 'input needs to be "Square", "Shaped", "Elaborate" or None'),
         ([1], dict(num_panes='10'), core.Door, AssertionError, 'Input "num_panes" needs to be a non-negative integer'),
         ([1], dict(num_panes=-5), core.Door, AssertionError, 'Input "num_panes" needs to be a non-negative integer'),
         ([1], dict(num_panes=2.4), core.Door, AssertionError, 'Input "num_panes" needs to be a non-negative integer'),
-        ([1], dict(num_panes=2, design='flat door'), core.Door, AssertionError, 'Only "cutting in" doors have panes > 0'),
-        ([1], dict(num_panes=0, design='cutting in'), core.Door, AssertionError, 'Only "cutting in" doors have panes > 0'),
+        ([1], dict(num_panes=2, design='Flat door'), core.Door, AssertionError, 'Only "Cutting in" doors have panes > 0'),
+        ([1], dict(num_panes=0, design='Cutting in'), core.Door, AssertionError, 'Only "Cutting in" doors have panes > 0'),
         ([1], dict(num_panes=0), core.Window, AssertionError, '"num_panes" needs to be an integer and >= 1'),
         ([1], dict(num_panes=2.4), core.Window, AssertionError, '"num_panes" needs to be an integer and >= 1'),
         ([1], dict(num_panes=-5), core.Window, AssertionError, '"num_panes" needs to be an integer and >= 1'),
@@ -423,7 +423,7 @@ def test_get_painting_surface_list(job, expected):
 @pytest.mark.parametrize(
     'surface_list, expected_values, expected_costs',
     [
-        #total prices surface1=62 surface2=77.87 surface3=210.03 surface4=40.87 approx
+        # total prices surface1=62 surface2=77.87 surface3=210.03 surface4=40.87 approx
         # areas of surfaces 1,2,3,4 respectively 8 10 20 1
         (job_1.get_painting_surface_list(), [1, 8, 10, 20], [41, 62, 78, 211])
 
