@@ -34,6 +34,10 @@ def on_change_num_surfaces(num_surfaces_change):
         for surface_index in range(1, num_surfaces_change['new'] + 1):
             # Create dictionary of widgets which will be contained in the surface form
             widgets_surface_dict = dict()
+            widgets_surface_dict['surface_title'] = widgets.Text(
+                value='Surface' + str(surface_index),
+                description='Surface name',
+            )
             widgets_surface_dict['surface_box'] = forms.SurfaceBox()
 
             # Create the surface form widget
@@ -75,6 +79,12 @@ def on_change_num_rooms(num_rooms_change):
             room_widgets_surface_form_dict['tab'] = widgets.Tab()
             room_widgets_surface_form_dict['surfaces'] = dict()
 
+            room_widgets_surface_form_dict['room_title'] = widgets.Text(
+                value='Room' + str(room_index),
+                description='Room name',
+            )
+            # creation of title box for room
+            num_surfaces_max = 5
             # creation of dropdown to select number of surfaces
             num_surfaces_max = 5
             room_widgets_surface_form_dict['dropdown_num_surfaces'] = widgets.Dropdown(
@@ -82,12 +92,16 @@ def on_change_num_rooms(num_rooms_change):
                 description='Num Surfaces:',
                 value=0,
             )
+
             # calling function on change of dropdown
             room_widgets_surface_form_dict['dropdown_num_surfaces'].observe(on_change_num_surfaces)
 
-            # making the widget for the form inside room tab
-            widgets_room_form = widgets.VBox([room_widgets_surface_form_dict['dropdown_num_surfaces'],
-                                             room_widgets_surface_form_dict['tab']])
+            # making the widget for the text box for the room name
+            widgets_room_form = widgets.VBox([
+                room_widgets_surface_form_dict['room_title'],
+                room_widgets_surface_form_dict['dropdown_num_surfaces'],
+                room_widgets_surface_form_dict['tab']
+            ])
 
             # Put the room widgets and room form inside of the global level dictionary for the whole form
             # to be able to reference them in callbacks

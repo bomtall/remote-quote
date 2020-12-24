@@ -386,8 +386,8 @@ class PaintingSurface:
 
     def get_breakdown(self):
         breakdown = dict(
-            surface_name=self.surface.name,
             room_name=self.surface.room_name,
+            surface_name=self.surface.name,
             total_price=self.get_total_price(),
             labour_price=self.get_labour_price(),
             paint_price=self.get_paint_price(),
@@ -548,7 +548,6 @@ class Job:
         for room in sorted_room_list:
             room_surface_area_by_condition_list.append(room.get_total_surface_area_by_condition(condition_list))
         return room_surface_area_by_condition_list
-
 
     def get_optimised_condition_job(self, budget):
         sorted_room_list = self.get_sorted_room_list()

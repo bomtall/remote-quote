@@ -59,14 +59,14 @@ OPTIMISATION_TYPE_TO_OPTIMISER = {
 class SurfaceInfoButton(widgets.Button):
     def __init__(self):
         super().__init__(
-            description='Surface Input Description',
+            description='Surface Info',
             disabled=False,
             button_style='',
             tooltip='Put information here',
             icon='fa-lightbulb-o',
         )
 
-        self.style.button_color = 'blue'
+        self.style.button_color = 'lightblue'
 
 
 class AreaInput(widgets.BoundedFloatText):
@@ -195,14 +195,14 @@ class SurfaceForm(widgets.VBox):
 class SubstrateInfoButton(widgets.Button):
     def __init__(self):
         super().__init__(
-            description='Substrate Input Description',
+            description='Substrate Info',
             disabled=False,
             button_style='',
             tooltip='Put information here',
             icon='fa-lightbulb-o',
         )
 
-        self.style.button_color = 'blue'
+        self.style.button_color = 'lightblue'
 
 
 class InputSubstrate(widgets.ToggleButtons):
@@ -323,14 +323,14 @@ class SubstrateForm(widgets.VBox):
 class PaintInfoButton(widgets.Button):
     def __init__(self):
         super().__init__(
-            description='Paint Input Description',
+            description='Paint Info',
             disabled=False,
             button_style='',
             tooltip='Put information here',
             icon='fa-lightbulb-o',
         )
 
-        self.style.button_color = 'blue'
+        self.style.button_color = 'lightblue'
 
 
 class PaintTypeButtons(widgets.ToggleButtons):
@@ -564,20 +564,54 @@ class OptimiseButton(widgets.Button):
 
         self.style.button_color = 'pink'
 
+class DownloadOptimisedJobButton(widgets.HTML):
+    def __init__(self):
+        res = f'''
+            Your RemoteQuote Instructions
+        '''
+        # FILE
+        filename = 'quote.txt'
+        b64 = base64.b64encode(res.encode())
+        payload = b64.decode()
+
+        # BUTTONS
+        html_buttons = '''<html>
+                <head>
+                <meta name="viewport" content="width=device-width, initial-scale=1">
+                </head>
+                <body>
+                <a download="{filename}" href="data:text/csv;base64,{payload}" download>
+                <button class="p-Widget jupyter-widgets jupyter-button widget-button mod-info">Download Instructions</button>
+                </a>
+                </body>
+                </html>
+                '''
+
+        html_button = html_buttons.format(payload=payload, filename=filename)
+        super().__init__(html_button)
+
 
 # -------------------------------------------- Calculation box ---------------------------------------------------------
 # Calculate box combining widgets for estimate, budget input, optimise, download
 class CalculateBox(widgets.VBox):
     def __init__(self):
         self.estimate_button = EstimateButton()
+        self.output = widgets.HTML()
         self.budget_input = BudgetInput()
         self.optimise_dropdown = OptimiseDropdown()
         self.optimise_button = OptimiseButton()
+        self.optimised_output = widgets.HTML()
+        self.optimised_download_output = widgets.HTML()
+        self.download_output = widgets.HTML()
         self.widget_dict = {
             'estimate_button': self.estimate_button,
+            'output': self.output,
             'budget_input': self.budget_input,
             'optimise_dropdown': self.optimise_dropdown,
             'optimise_button': self.optimise_button,
+            'optimised_output': self.optimised_output,
+            'download_optimised_output': self.optimised_download_output,
+            'download_output': self.download_output,
         }
 
         super().__init__(list(self.widget_dict.values()))
@@ -597,14 +631,9 @@ class RemoteQuoteForm(widgets.VBox):
 
         self.calculate_box = CalculateBox()
         self.calculate_box.estimate_button.on_click(self.get_estimate)
-        self.output = widgets.HTML()
         self.calculate_box.optimise_button.on_click(self.get_optimised_job)
 
-        self.optimised_output = widgets.HTML()
-        # self.calculate_box.download_button.on_click(self.get_download)
-        self.download_output = widgets.HTML()
-        super().__init__([self.form_widgets_dict['dropdown_num_rooms'], self.form_widgets_dict['tab'],
-                          self.calculate_box, self.output, self.optimised_output, self.download_output])
+        super().__init__([self.form_widgets_dict['dropdown_num_rooms'], self.form_widgets_dict['tab'], self.calculate_box])
         self.job = core.Job([])
 
     def freeze_room_dropdown(self, change):
@@ -635,18 +664,42 @@ class RemoteQuoteForm(widgets.VBox):
         '''
 
         html_button = html_buttons.format(payload=payload, filename=filename)
-        self.download_output.value = html_button
+        self.calculate_box.download_output.value = html_button
 
     def get_optimised_job(self, change):
         optimise_function = self.calculate_box.optimise_dropdown.optimisation_type_to_optimiser[self.calculate_box.optimise_dropdown.value]
         optimised_job = optimise_function(self.job, self.calculate_box.budget_input.value)
-        self.optimised_output.value = f'{optimised_job.get_summary()}'
+        self.calculate_box.optimised_output.value = f'{optimised_job.get_summary()}'
+        res = f'''
+                    Your RemoteQuote Optimised Job
+                    {optimised_job.get_breakdown()}
+                '''
+        # FILE
+        filename = 'quote.txt'
+        b64 = base64.b64encode(res.encode())
+        payload = b64.decode()
+
+        # BUTTONS
+        html_buttons = '''<html>
+                        <head>
+                        <meta name="viewport" content="width=device-width, initial-scale=1">
+                        </head>
+                        <body>
+                        <a download="{filename}" href="data:text/csv;base64,{payload}" download>
+                        <button class="p-Widget jupyter-widgets jupyter-button widget-button mod-info">Download Optimised Job</button>
+                        </a>
+                        </body>
+                        </html>
+                        '''
+
+        html_button = html_buttons.format(payload=payload, filename=filename)
+        self.calculate_box.optimised_download_output.value = html_button
 
     def get_estimate(self, change):
         try:
             self.job = self.get_job()
             total_price = self.job.get_total_price()
-            self.output.value = f'{total_price:.2f}'
+            self.calculate_box.output.value = f'{total_price:.2f}'
 
             self.get_download()
             self.calculate_box.optimise_button.disabled = False
@@ -654,7 +707,7 @@ class RemoteQuoteForm(widgets.VBox):
 
         except KeyError as e:
             if e.args[0] == 'widget_dict_list':
-                self.output.value = 'Rooms with unselected surfaces. Please select.'
+                self.calculate_box.output.value = 'Rooms with unselected surfaces. Please select.'
             else:
                 raise
 
@@ -670,21 +723,25 @@ class RemoteQuoteForm(widgets.VBox):
 
     def get_room(self, room_dict):
         painting_surface_list = []
+        room_name = room_dict['room_title'].value
         num_surfaces = room_dict['dropdown_num_surfaces'].value
         for surface_index in range(num_surfaces):
             surface_dict = room_dict['surfaces']['widget_dict_list'][surface_index]
             painting_surface = self.get_painting_surface(surface_dict)
             painting_surface_list.append(painting_surface)
-        room = core.Room(painting_surface_list)
+
+        room = core.Room(painting_surface_list, name=room_name)
         return room
 
     def get_painting_surface(self, surface_dict):
+        surface_name = surface_dict['surface_title'].value
         surface_form = surface_dict['surface_box'].surface_form
         substrate_form = surface_dict['surface_box'].substrate_form
         paint_form = surface_dict['surface_box'].paint_form
 
         surface = self.get_surface(surface_form, substrate_form)
         paint = self.get_paint(paint_form)
+        surface.name = surface.name + surface_name
         return core.PaintingSurface(surface, paint)
 
     def get_surface(self, surface_form, substrate_form):
