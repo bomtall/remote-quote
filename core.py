@@ -430,6 +430,19 @@ class Room:
             room_total_price += painting_surface.get_total_price()
         return room_total_price
 
+    def get_total_surface_area(self):
+        room_surface_area = 0
+        for painting_surface in self.painting_surfaces:
+            room_surface_area += painting_surface.surface.area
+        return room_surface_area
+
+    def get_total_surface_area_by_condition(self, condition_list):
+        total_surface_area_by_condition = 0
+        for painting_surface in self.painting_surfaces:
+            if painting_surface.surface.substrate.condition in condition_list:
+                total_surface_area_by_condition += painting_surface.surface.area
+        return total_surface_area_by_condition
+
     def get_breakdown(self):
         breakdown_list = []
 
@@ -465,8 +478,13 @@ class Job:
         return breakdown_list
 
     def get_painting_surface_list(self):
+        rooms = self.rooms
+        return self.get_painting_surface_list_from_room_list(rooms)
+
+    @staticmethod
+    def get_painting_surface_list_from_room_list(rooms):
         painting_surface_list = []
-        for room in self.rooms:
+        for room in rooms:
             for painting_surface in room.painting_surfaces:
                 painting_surface_list.append(painting_surface)
 
@@ -495,6 +513,55 @@ class Job:
         optimal_index_list = knapsack.optimal_knapsack(budget, values, costs)
         optimal_surface_list = [surface_list[i] for i in optimal_index_list]
         return OptimisedJob(optimal_surface_list, surface_list, budget)
+
+    def get_sorted_room_list(self):
+        sorted_room_list = []
+        for room in self.rooms:
+            sorted_room_list.append(room)
+            sorted_room_list.sort(key=lambda x: x.get_total_price())
+        return sorted_room_list
+
+    def get_room_surface_area_list(self, sorted_room_list):
+        room_surface_area_list = []
+        for room in sorted_room_list:
+            room_surface_area_list.append(room.get_total_surface_area())
+        return room_surface_area_list
+
+    def get_room_price_list(self, sorted_room_list):
+        room_price_list = []
+        for room in sorted_room_list:
+            room_price_list.append(math.ceil(room.get_total_price()))
+        return room_price_list
+
+    def get_optimised_rooms_job(self, budget):
+        sorted_room_list = self.get_sorted_room_list()
+        room_surface_area_list = self.get_room_surface_area_list(sorted_room_list)
+        room_price_list = self.get_room_price_list(sorted_room_list)
+        optimal_room_index_list = knapsack.optimal_knapsack(budget, room_surface_area_list, room_price_list)
+        optimal_room_list = [sorted_room_list[i] for i in optimal_room_index_list]
+        budgeted_painting_surface_list = self.get_painting_surface_list_from_room_list(optimal_room_list)
+        original_painting_surface_list = self.get_painting_surface_list_from_room_list(sorted_room_list)
+        return OptimisedJob(budgeted_painting_surface_list, original_painting_surface_list, budget)
+
+    def get_room_surface_area_by_condition_list(self, sorted_room_list, condition_list):
+        room_surface_area_by_condition_list = []
+        for room in sorted_room_list:
+            room_surface_area_by_condition_list.append(room.get_total_surface_area_by_condition(condition_list))
+        return room_surface_area_by_condition_list
+
+
+    def get_optimised_condition_job(self, budget):
+        sorted_room_list = self.get_sorted_room_list()
+        condition_list = ['poor']
+        room_surface_area_by_condition_list = self.get_room_surface_area_by_condition_list(sorted_room_list,
+                                                                                           condition_list)
+        room_price_list = self.get_room_price_list(sorted_room_list)
+        optimal_room_index_list = knapsack.optimal_knapsack(budget, room_surface_area_by_condition_list,
+                                                            room_price_list)
+        optimal_room_list = [sorted_room_list[i] for i in optimal_room_index_list]
+        budgeted_painting_surface_list = self.get_painting_surface_list_from_room_list(optimal_room_list)
+        original_painting_surface_list = self.get_painting_surface_list_from_room_list(sorted_room_list)
+        return OptimisedJob(budgeted_painting_surface_list, original_painting_surface_list, budget)
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -538,7 +605,7 @@ class OptimisedJob:
             total_price=total_price,
             total_surface_area=total_surface_area,
         )
-# TODO worry about units of paint and paint price when adding up for same paint
+
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -575,9 +642,9 @@ class ConditionAssumptions():
 # add assumptions - including brand of defaults
 # add instructions (text box) maybe download complete instruction file
 # headings widgets.HTML
+
 # extend optimiser to rooms
 
-# disable number of rooms and surfaces dropdowns once chosen, add a refresh button
 # bring primer in to bare wood and mdf
 # option to apply trade discount to materials price get paint price discount in painting surface
 # flexible unit sizes or option to not round up units to get around multiple uses of same paints

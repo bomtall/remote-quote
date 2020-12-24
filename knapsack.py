@@ -1,4 +1,6 @@
 def optimal_knapsack(capacity, values, costs):
+    values = [0] + values
+    costs = [0] + costs
     # initialising matrix k
     k = []
     list_budget_size = range(capacity + 1)
@@ -32,4 +34,4 @@ def optimal_knapsack(capacity, values, costs):
             j = j - costs[i]
         i = i - 1
 
-    return included_items
+    return [i - 1 for i in included_items]

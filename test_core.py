@@ -465,3 +465,55 @@ def test_get_summary(optimised_job, expected_summary_dict):
     summary = optimised_job.get_summary()
     assert summary == expected_summary_dict
 
+@pytest.mark.parametrize(
+    'optimised_job, expected_summary_dict',
+    [
+
+        (job_1.get_optimised_rooms_job(350), {
+            'budget': 350,
+            'total_budgeted_job_price': 250.9,
+            'total_surface_area_in_budget': 21,
+            'unpainted_surface_area': 18,
+            'cost_for_remaining_items': 139.87
+        })
+    ],
+)
+def test_room_optimise_get_summary(optimised_job, expected_summary_dict):
+    summary = optimised_job.get_summary()
+    for key in list(summary.keys()):
+        assert summary[key] == pytest.approx(expected_summary_dict[key], 0.01)
+
+# total prices surface1=62 surface2=77.87 surface3=210.03 surface4=40.87 approx
+        # areas of surfaces 1,2,3,4 respectively 8 10 20 1
+
+condition_optimisation_test_painting_surface = core.PaintingSurface(core.Wall(8, substrate=core.PrePaintedEmulsion(
+    condition='poor')), core.Paint(30, 5, 17))
+condition_optimisation_test_painting_surface_2 = core.PaintingSurface(core.Wall(10, substrate=core.PrePaintedEmulsion(
+    condition='poor')), paint_link.MattEmulsionPaint())
+condition_optimisation_test_painting_surface_3 = core.PaintingSurface(core.Wall(20, substrate=core.Plaster()), paint_link.DiamondMattEmulsion())
+condition_optimisation_test_painting_surface_4 = core.PaintingSurface(core.Skirtingboard(1, substrate=core.Mdf(primed=True)), paint_link.OilEggshell())
+
+room_3 = core.Room([condition_optimisation_test_painting_surface, condition_optimisation_test_painting_surface_2])
+room_4 = core.Room([condition_optimisation_test_painting_surface_3, condition_optimisation_test_painting_surface_4])
+
+job_2 = core.Job([room_3, room_4])
+
+
+
+@pytest.mark.parametrize(
+    'optimised_job, expected_summary_dict',
+    [
+
+        (job_2.get_optimised_condition_job(400), {
+            'budget': 400,
+            'total_budgeted_job_price': 211.87,
+            'total_surface_area_in_budget': 18,
+            'unpainted_surface_area': 21,
+            'cost_for_remaining_items': 250.9,
+        })
+    ],
+)
+def test_room_optimise_get_summary(optimised_job, expected_summary_dict):
+    summary = optimised_job.get_summary()
+    for key in list(summary.keys()):
+        assert summary[key] == pytest.approx(expected_summary_dict[key], 0.01)

@@ -46,10 +46,29 @@ PAINT_TYPE_TO_FINISH_OPTIONS_DICT = {
     'Custom Input': None,
 }
 
+OPTIMISATION_TYPE_TO_OPTIMISER = {
+    'Max surface area': core.Job.get_optimised_job,
+    'Max rooms by surface area': core.Job.get_optimised_rooms_job,
+    'Max rooms by condition and surface area': core.Job.get_optimised_condition_job,
+}
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # --------------------------------------------------- Surface widgets  -------------------------------------------------
 # Widgets to take inputs area, surface, design and num_panes from user
+class SurfaceInfoButton(widgets.Button):
+    def __init__(self):
+        super().__init__(
+            description='Surface Input Description',
+            disabled=False,
+            button_style='',
+            tooltip='Put information here',
+            icon='fa-lightbulb-o',
+        )
+
+        self.style.button_color = 'blue'
+
+
 class AreaInput(widgets.BoundedFloatText):
     def __init__(self):
         super().__init__(
@@ -135,12 +154,14 @@ class NumPanesSelector(widgets.BoundedIntText):
 # Widget to combine widgets for area, surface, design and num panes
 class SurfaceForm(widgets.VBox):
     def __init__(self):
+        self.surface_info = SurfaceInfoButton()
         self.area_input = AreaInput()
         self.surface_selector = SurfaceSelector()
         self.design_selector = DesignSelector()
         self.num_panes_selector = NumPanesSelector()
 
         self.widget_dict = {
+            'surface_info': self.surface_info,
             'area_input': self.area_input,
             'surface_selector': self.surface_selector,
             'design_selector': self.design_selector,
@@ -171,6 +192,19 @@ class SurfaceForm(widgets.VBox):
 # ----------------------------------------------------------------------------------------------------------------------
 #  ----------------------------------------------- Substrate widgets  --------------------------------------------------
 # Widgets for substrate, condition, num coats and coverage adjustment
+class SubstrateInfoButton(widgets.Button):
+    def __init__(self):
+        super().__init__(
+            description='Substrate Input Description',
+            disabled=False,
+            button_style='',
+            tooltip='Put information here',
+            icon='fa-lightbulb-o',
+        )
+
+        self.style.button_color = 'blue'
+
+
 class InputSubstrate(widgets.ToggleButtons):
     def __init__(self):
         options_list = list(SUBSTRATE_INPUT_TO_SUBSTRATE_CLASS_DICT.keys())
@@ -256,11 +290,13 @@ class InputSubstrateDetails(widgets.Accordion):
 # to create Substrate class
 class SubstrateForm(widgets.VBox):
     def __init__(self):
+        self.substrate_info = SubstrateInfoButton()
         self.input_substrate = InputSubstrate()
         self.input_condition = InputCondition()
         self.input_substrate_details = InputSubstrateDetails()
         self.substrate_input_to_substrate_class_dict = SUBSTRATE_INPUT_TO_SUBSTRATE_CLASS_DICT
         self.widget_list_dict = {
+            'substrate_info': self.substrate_info,
             'input_substrate': self.input_substrate,
             'input_condition': self.input_condition,
             'input_substrate_details': self.input_substrate_details,
@@ -284,6 +320,19 @@ class SubstrateForm(widgets.VBox):
 # ----------------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------- Paint widgets --------------------------------------------------------
 # Widgets for paint type, finish and paint details (price, unit, coverage)
+class PaintInfoButton(widgets.Button):
+    def __init__(self):
+        super().__init__(
+            description='Paint Input Description',
+            disabled=False,
+            button_style='',
+            tooltip='Put information here',
+            icon='fa-lightbulb-o',
+        )
+
+        self.style.button_color = 'blue'
+
+
 class PaintTypeButtons(widgets.ToggleButtons):
     def __init__(self):
         options = list(PAINT_TYPE_TO_FINISH_OPTIONS_DICT.keys())
@@ -406,11 +455,16 @@ class PaintCoverageInput(widgets.BoundedFloatText):
 # Paint form combining widgets for paint type, paint finish, paint inputs (price, unit, coverage) to make Paint class
 class PaintForm(widgets.VBox):
     def __init__(self):
-
+        self.paint_heading = widgets.HTML('<h2 style="font-family:verdana;">Paint Inputs</h2>')
+        self.paint_paragraph = widgets.HTML('<p style="font-family:courier;">This is a paragraph.</p>')
+        self.paint_info = PaintInfoButton()
         self.paint_type_buttons = PaintTypeButtons()
         self.paint_finish_dropdown = FinishChoices()
         self.paint_inputs_box = PaintDetailsInputBox()
         self.widget_dict = {
+            'paint_heading': self.paint_heading,
+            'paint_paragraph': self.paint_paragraph,
+            'paint_info':self.paint_info,
             'paint_type_buttons': self.paint_type_buttons,
             'paint_finish_dropdown': self.paint_finish_dropdown,
             'paint_inputs_box': self.paint_inputs_box,
@@ -487,14 +541,25 @@ class BudgetInput(widgets.BoundedIntText):
         )
 
 
+class OptimiseDropdown(widgets.Dropdown):
+    def __init__(self):
+        self.optimisation_type_to_optimiser = OPTIMISATION_TYPE_TO_OPTIMISER
+        super().__init__(
+            options=list(self.optimisation_type_to_optimiser.keys()),
+            value=list(self.optimisation_type_to_optimiser.keys())[0],
+            description='Method of Optimisation:',
+            disabled=True,
+        )
+
+
 class OptimiseButton(widgets.Button):
     def __init__(self):
         super().__init__(
             description='Optimise Job',
-            disabled=False,
+            disabled=True,
             button_style='',
             tooltip='Calculate Budget Optimisation',
-            icon='check',
+            icon='fa-calculator',
         )
 
         self.style.button_color = 'pink'
@@ -502,33 +567,20 @@ class OptimiseButton(widgets.Button):
 
 # -------------------------------------------- Calculation box ---------------------------------------------------------
 # Calculate box combining widgets for estimate, budget input, optimise, download
-class CalculateBox(widgets.HBox):
+class CalculateBox(widgets.VBox):
     def __init__(self):
         self.estimate_button = EstimateButton()
         self.budget_input = BudgetInput()
+        self.optimise_dropdown = OptimiseDropdown()
         self.optimise_button = OptimiseButton()
         self.widget_dict = {
             'estimate_button': self.estimate_button,
             'budget_input': self.budget_input,
+            'optimise_dropdown': self.optimise_dropdown,
             'optimise_button': self.optimise_button,
         }
 
         super().__init__(list(self.widget_dict.values()))
-
-
-# ----------------------------------------------------------------------------------------------------------------------
-# ---------------------------------------------- Refresh button --------------------------------------------------------
-class RefreshButton(widgets.Button):
-    def __init__(self):
-        super().__init__(
-            description='Refresh Buttom',
-            disabled=False,
-            button_style='',
-            tooltip='Refresh the rooms and surfaces (this will delete your current form)',
-            icon='check',
-        )
-
-        self.style.button_color = 'palegreen'
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -538,17 +590,16 @@ class RefreshButton(widgets.Button):
 # calculation box and outputs
 class RemoteQuoteForm(widgets.VBox):
     def __init__(self, form_widgets_dict):
-        # self.refresh_button = RefreshButton()
-        # self.refresh_button.on_click(self.reset_tabs)
 
         self.form_widgets_dict = form_widgets_dict
         self.form_widgets_dict['dropdown_num_rooms'].observe(tab_structure.on_change_num_rooms)
-        # self.form_widgets_dict['dropdown_num_rooms'].observe(self.freeze_dropdown)
+        self.form_widgets_dict['dropdown_num_rooms'].observe(self.freeze_room_dropdown)
 
         self.calculate_box = CalculateBox()
         self.calculate_box.estimate_button.on_click(self.get_estimate)
         self.output = widgets.HTML()
         self.calculate_box.optimise_button.on_click(self.get_optimised_job)
+
         self.optimised_output = widgets.HTML()
         # self.calculate_box.download_button.on_click(self.get_download)
         self.download_output = widgets.HTML()
@@ -556,17 +607,8 @@ class RemoteQuoteForm(widgets.VBox):
                           self.calculate_box, self.output, self.optimised_output, self.download_output])
         self.job = core.Job([])
 
-    # def reset_tabs(self, change):
-    #     self.form_widgets_dict
-    #     self.form_widgets_dict['dropdown_num_rooms'].observe(tab_structure.on_change_num_rooms)
-    #     self.form_widgets_dict['dropdown_num_rooms'].observe(self.freeze_dropdown)
-    #
-    #     super().__init__(
-    #         [self.refresh_button, self.form_widgets_dict['dropdown_num_rooms'], self.form_widgets_dict['tab'],
-    #          self.calculate_box, self.output, self.optimised_output, self.download_output])
-
-    # def freeze_dropdown(self, change):
-    #     self.form_widgets_dict['dropdown_num_rooms'].disabled = True
+    def freeze_room_dropdown(self, change):
+        self.form_widgets_dict['dropdown_num_rooms'].disabled = True
 
     def get_download(self):
         res = f'''
@@ -596,7 +638,8 @@ class RemoteQuoteForm(widgets.VBox):
         self.download_output.value = html_button
 
     def get_optimised_job(self, change):
-        optimised_job = self.job.get_optimised_job(self.calculate_box.budget_input.value)
+        optimise_function = self.calculate_box.optimise_dropdown.optimisation_type_to_optimiser[self.calculate_box.optimise_dropdown.value]
+        optimised_job = optimise_function(self.job, self.calculate_box.budget_input.value)
         self.optimised_output.value = f'{optimised_job.get_summary()}'
 
     def get_estimate(self, change):
@@ -606,6 +649,8 @@ class RemoteQuoteForm(widgets.VBox):
             self.output.value = f'{total_price:.2f}'
 
             self.get_download()
+            self.calculate_box.optimise_button.disabled = False
+            self.calculate_box.optimise_dropdown.disabled = False
 
         except KeyError as e:
             if e.args[0] == 'widget_dict_list':
@@ -672,3 +717,82 @@ class RemoteQuoteForm(widgets.VBox):
         else:
             paint = paint_class()
         return paint
+
+# ----------------------------------------------------------------------------------------------------------------------
+# -------------------------------------- Other widgets required for Final GUI ------------------------------------------
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------- Refresh button --------------------------------------------------------
+class GUIHeading(widgets.HTML):
+    def __init__(self):
+        heading = '<h1 style="color:blue;">RemoteQuote</h1>'
+        super().__init__(heading)
+
+
+class GUIInstructionParagraph(widgets.HTML):
+    def __init__(self):
+        paragraph = '<p style="font-family:courier;">This is a paragraph.</p>'
+        super().__init__(paragraph)
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------- Refresh button --------------------------------------------------------
+class RefreshButton(widgets.Button):
+    def __init__(self):
+        super().__init__(
+            description='Refresh Button',
+            disabled=False,
+            button_style='',
+            tooltip='Refresh the rooms and surfaces (this will delete your current form)',
+            icon='fa-refresh',
+        )
+
+        self.style.button_color = '#FF6633'
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------- Instructions button ---------------------------------------------------
+class InstructionsButton(widgets.HTML):
+    def __init__(self):
+        res = f'''
+            Your RemoteQuote Instructions
+        '''
+        # FILE
+        filename = 'quote.txt'
+        b64 = base64.b64encode(res.encode())
+        payload = b64.decode()
+
+        # BUTTONS
+        html_buttons = '''<html>
+                <head>
+                <meta name="viewport" content="width=device-width, initial-scale=1">
+                </head>
+                <body>
+                <a download="{filename}" href="data:text/csv;base64,{payload}" download>
+                <button class="p-Widget jupyter-widgets jupyter-button widget-button mod-info">Download Instructions</button>
+                </a>
+                </body>
+                </html>
+                '''
+
+        html_button = html_buttons.format(payload=payload, filename=filename)
+        super().__init__(html_button)
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------- Final GUI -------------------------------------------------------------
+class GuiInterface(widgets.VBox):
+    def __init__(self):
+        self.heading = GUIHeading()
+        self.paragraph = GUIInstructionParagraph()
+        self.refresh_button = RefreshButton()
+        self.refresh_button.on_click(self.reset_form)
+        self.form = RemoteQuoteForm(tab_structure.form_widgets_dict)
+        self.instructions = InstructionsButton()
+        super().__init__([self.heading, self.paragraph, widgets.HBox([self.refresh_button, self.instructions]), self.form])
+
+    def reset_form(self, change):
+        tab_structure.form_widgets_dict = tab_structure.initialise_form_widgets()
+        self.form = RemoteQuoteForm(tab_structure.form_widgets_dict)
+        super().__init__([self.heading, widgets.HBox([self.refresh_button, self.instructions]), self.form])
