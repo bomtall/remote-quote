@@ -52,6 +52,46 @@ OPTIMISATION_TYPE_TO_OPTIMISER = {
     'Max rooms by condition and surface area': core.Job.get_optimised_condition_job,
 }
 
+HTML_PARAGRAPH_DICT = {
+    'heading_paragraph':'''Create your own quotation for Painting & Decorating and optimise the quote for your budget.
+                            <br>                     
+                            Select the number of rooms you want to estimate. Once selected, the number of rooms is set. 
+                            Click refresh to start again.<br> 
+                            Once you have created your rooms, select the correct number of
+                             surfaces in each room before you select any options.<br> Changing the number of surfaces
+                              within a room will re-set the details of those surfaces.<br>Hover over the info buttons in
+                               the surface form for help, or click "download info" below for a full set of
+                                instructions.<br>Set the name for each room to organise surfaces into groups for the 
+                                downloadable quote & optimisation''',
+    'surface_paragraph_string': '''In this section select the details of your surface.
+                                    Each surface added can be multiple surfaces of the same type within a room 
+                                    i.e all the walls can be entered as one wall if they are to be painted the same
+                                    colour and are in the same condition''',
+    'substrate_paragraph': '''Enter the details of the surface material and the condition. All surfaces in poor
+                            condition require 2 coats''',
+    'paint_paragraph': '''Choose a pre-set paint from Dulux or choose custom input and enter details of another 
+                        paint''',
+
+
+}
+
+
+TOOLTIPS_DICT ={
+    'surface_tip': 'To measure the surface area of multiple surfaces which are the same type, for example walls or'
+                   ' skirting board, measure the height once and multiply by the distance around the room.',
+    'substrate_tip': 'The surface material to be painted over will affect the coverage performance of paint and the'
+                     ' number of coats necessary for a satisfactory finish. Choose custom substrate to change the'
+                     ' number of coats and enter a coverage adjustment. Good condition is when there is almost no'
+                     ' preparation necessary, okay condition is when there is some reasonable level of preparation,'
+                     ' some small cracks, and/or some imperfections. Poor is when there is any of: flaking paint, large'
+                     ' cracks, stains or damage. You can choose poor condition when new plastering has been done badly'
+                     ' or when selecting new wood and the joinery is of a poor standard with large gaps to fill and '
+                     'repair. ',
+    'paint_tip':'All defaults are based on full price dulux paints in brilliant white. Prices for mixed colours are'
+                ' slightly more expensive. Choose custom inputs to enter details of a paint you wish to use, or a '
+                'similar paint but in a different unit size',
+
+}
 
 # ----------------------------------------------------------------------------------------------------------------------
 # --------------------------------------------------- Surface widgets  -------------------------------------------------
@@ -62,7 +102,7 @@ class SurfaceInfoButton(widgets.Button):
             description='Surface Info',
             disabled=False,
             button_style='',
-            tooltip='Put information here',
+            tooltip=TOOLTIPS_DICT['surface_tip'],
             icon='fa-lightbulb-o',
         )
 
@@ -152,20 +192,33 @@ class NumPanesSelector(widgets.BoundedIntText):
 
 # ----------------------------------------------- Surface form ---------------------------------------------------------
 # Widget to combine widgets for area, surface, design and num panes
+
+
+
 class SurfaceForm(widgets.VBox):
     def __init__(self):
+        #self.html_paragraph_dict = HTML_PARAGRAPH_DICT
+        self.surface_heading = widgets.HTML(
+            '<h2 style="font-family:georgia;background-color:#EDF9F4; color:#4FAD99">Surface Inputs</h2>')
+        self.surface_paragraph = widgets.HTML(
+            f'<p style="font-family:georgia; background-color:#EDF9F4; color:#4FAD99">'
+            f'{HTML_PARAGRAPH_DICT["surface_paragraph_string"]}</p>')
         self.surface_info = SurfaceInfoButton()
         self.area_input = AreaInput()
         self.surface_selector = SurfaceSelector()
         self.design_selector = DesignSelector()
         self.num_panes_selector = NumPanesSelector()
 
+
         self.widget_dict = {
+            'surface_heading': self.surface_heading,
+            'surface_paragraph': self.surface_paragraph,
             'surface_info': self.surface_info,
             'area_input': self.area_input,
             'surface_selector': self.surface_selector,
             'design_selector': self.design_selector,
-            'num_panes_selector': self.num_panes_selector
+            'num_panes_selector': self.num_panes_selector,
+
         }
 
         super().__init__(list(self.widget_dict.values()))
@@ -198,7 +251,7 @@ class SubstrateInfoButton(widgets.Button):
             description='Substrate Info',
             disabled=False,
             button_style='',
-            tooltip='Put information here',
+            tooltip=TOOLTIPS_DICT['substrate_tip'],
             icon='fa-lightbulb-o',
         )
 
@@ -290,16 +343,23 @@ class InputSubstrateDetails(widgets.Accordion):
 # to create Substrate class
 class SubstrateForm(widgets.VBox):
     def __init__(self):
+        self.substrate_heading = widgets.HTML(
+            '<h2 style="font-family:georgia;background-color:#EDF9F4; color:#4FAD99">Substrate Inputs</h2>')
+        self.substrate_paragraph = widgets.HTML(
+            f'<p style="font-family:georgia; background-color:#EDF9F4; color:#4FAD99">{HTML_PARAGRAPH_DICT["substrate_paragraph"]}</p>')
         self.substrate_info = SubstrateInfoButton()
         self.input_substrate = InputSubstrate()
         self.input_condition = InputCondition()
         self.input_substrate_details = InputSubstrateDetails()
         self.substrate_input_to_substrate_class_dict = SUBSTRATE_INPUT_TO_SUBSTRATE_CLASS_DICT
         self.widget_list_dict = {
+            'substrate_heading': self.substrate_heading,
+            'substrate_paragraphself': self.substrate_paragraph,
             'substrate_info': self.substrate_info,
             'input_substrate': self.input_substrate,
             'input_condition': self.input_condition,
             'input_substrate_details': self.input_substrate_details,
+
             }
 
         self.input_condition.observe(self.toggle_substrate_details_on_condition, 'value')
@@ -326,7 +386,7 @@ class PaintInfoButton(widgets.Button):
             description='Paint Info',
             disabled=False,
             button_style='',
-            tooltip='Put information here',
+            tooltip=TOOLTIPS_DICT['paint_tip'],
             icon='fa-lightbulb-o',
         )
 
@@ -455,8 +515,10 @@ class PaintCoverageInput(widgets.BoundedFloatText):
 # Paint form combining widgets for paint type, paint finish, paint inputs (price, unit, coverage) to make Paint class
 class PaintForm(widgets.VBox):
     def __init__(self):
-        self.paint_heading = widgets.HTML('<h2 style="font-family:verdana;">Paint Inputs</h2>')
-        self.paint_paragraph = widgets.HTML('<p style="font-family:courier;">This is a paragraph.</p>')
+        self.paint_heading = widgets.HTML('<h2 style="font-family:georgia;background-color:#EDF9F4;'
+                                          ' color:#4FAD99">Paint Inputs</h2>')
+        self.paint_paragraph = widgets.HTML('<p style="font-family:georgia; background-color:#EDF9F4;'
+                                            f' color:#4FAD99">{HTML_PARAGRAPH_DICT["paint_paragraph"]}</p>')
         self.paint_info = PaintInfoButton()
         self.paint_type_buttons = PaintTypeButtons()
         self.paint_finish_dropdown = FinishChoices()
@@ -547,7 +609,7 @@ class OptimiseDropdown(widgets.Dropdown):
         super().__init__(
             options=list(self.optimisation_type_to_optimiser.keys()),
             value=list(self.optimisation_type_to_optimiser.keys())[0],
-            description='Method of Optimisation:',
+            description='Method:',
             disabled=True,
         )
 
@@ -581,7 +643,8 @@ class DownloadOptimisedJobButton(widgets.HTML):
                 </head>
                 <body>
                 <a download="{filename}" href="data:text/csv;base64,{payload}" download>
-                <button class="p-Widget jupyter-widgets jupyter-button widget-button mod-info">Download Instructions</button>
+                <button class="p-Widget jupyter-widgets jupyter-button widget-button mod-info">Download Instructions
+                </button>
                 </a>
                 </body>
                 </html>
@@ -633,7 +696,8 @@ class RemoteQuoteForm(widgets.VBox):
         self.calculate_box.estimate_button.on_click(self.get_estimate)
         self.calculate_box.optimise_button.on_click(self.get_optimised_job)
 
-        super().__init__([self.form_widgets_dict['dropdown_num_rooms'], self.form_widgets_dict['tab'], self.calculate_box])
+        super().__init__([self.form_widgets_dict['dropdown_num_rooms'], self.form_widgets_dict['tab'],
+                          self.calculate_box])
         self.job = core.Job([])
 
     def freeze_room_dropdown(self, change):
@@ -657,7 +721,8 @@ class RemoteQuoteForm(widgets.VBox):
         </head>
         <body>
         <a download="{filename}" href="data:text/csv;base64,{payload}" download>
-        <button class="p-Widget jupyter-widgets jupyter-button widget-button mod-info">Download Quote</button>
+        <button class="p-Widget jupyter-widgets jupyter-button widget-button mod-info">
+        <i class="fa fa-download"> Download Quote</button>
         </a>
         </body>
         </html>
@@ -686,7 +751,8 @@ class RemoteQuoteForm(widgets.VBox):
                         </head>
                         <body>
                         <a download="{filename}" href="data:text/csv;base64,{payload}" download>
-                        <button class="p-Widget jupyter-widgets jupyter-button widget-button mod-info">Download Optimised Job</button>
+                        <button class="p-Widget jupyter-widgets jupyter-button widget-button mod-info"><i class="fa
+                         fa-download"> Optimised Job</button>
                         </a>
                         </body>
                         </html>
@@ -783,13 +849,14 @@ class RemoteQuoteForm(widgets.VBox):
 # ---------------------------------------------- Refresh button --------------------------------------------------------
 class GUIHeading(widgets.HTML):
     def __init__(self):
-        heading = '<h1 style="color:blue;">RemoteQuote</h1>'
+        heading = '<h1 style="color:#4FAD99; background-color:#EDF9F4; font-family:georgia;">RemoteQuote</h1>'
         super().__init__(heading)
 
 
 class GUIInstructionParagraph(widgets.HTML):
     def __init__(self):
-        paragraph = '<p style="font-family:courier;">This is a paragraph.</p>'
+        paragraph = f'<p style="font-family:georgia; background-color:#EDF9F4; color:#4FAD99">' \
+                    f'{HTML_PARAGRAPH_DICT["heading_paragraph"]}</p>'
         super().__init__(paragraph)
 
 
@@ -805,7 +872,7 @@ class RefreshButton(widgets.Button):
             icon='fa-refresh',
         )
 
-        self.style.button_color = '#FF6633'
+        self.style.button_color = '#FF880063'
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -823,11 +890,14 @@ class InstructionsButton(widgets.HTML):
         # BUTTONS
         html_buttons = '''<html>
                 <head>
+                <link rel="stylesheet"
+                 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
                 <meta name="viewport" content="width=device-width, initial-scale=1">
                 </head>
                 <body>
                 <a download="{filename}" href="data:text/csv;base64,{payload}" download>
-                <button class="p-Widget jupyter-widgets jupyter-button widget-button mod-info">Download Instructions</button>
+                <button class="p-Widget jupyter-widgets jupyter-button widget-button mod-info">
+                <i class="fa fa-download"></i> Download Info</button>
                 </a>
                 </body>
                 </html>
@@ -847,9 +917,11 @@ class GuiInterface(widgets.VBox):
         self.refresh_button.on_click(self.reset_form)
         self.form = RemoteQuoteForm(tab_structure.form_widgets_dict)
         self.instructions = InstructionsButton()
-        super().__init__([self.heading, self.paragraph, widgets.HBox([self.refresh_button, self.instructions]), self.form])
+        super().__init__([self.heading, self.paragraph, widgets.HBox([self.refresh_button, self.instructions]),
+                          self.form])
 
     def reset_form(self, change):
         tab_structure.form_widgets_dict = tab_structure.initialise_form_widgets()
         self.form = RemoteQuoteForm(tab_structure.form_widgets_dict)
-        super().__init__([self.heading, widgets.HBox([self.refresh_button, self.instructions]), self.form])
+        super().__init__([self.heading, self.paragraph,  widgets.HBox([self.refresh_button, self.instructions]),
+                          self.form])

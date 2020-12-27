@@ -30,6 +30,7 @@ class Surface:
 
     ):
 
+
         if area is None:
             assert length is not None and width is not None, 'Input either "area" or "length" and "width".'
             assert isinstance(length, Number), 'Input "length" needs to be numeric.'
@@ -58,6 +59,8 @@ class Surface:
         self.name = name
         self.num_panes = num_panes
         self.room_name = room_name
+
+
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -252,9 +255,9 @@ class Substrate:
 
     def get_preparation_factor(self):
         if self.condition == 'poor':
-            preparation_factor = 1.1
-        elif self.condition == 'okay':
             preparation_factor = 1.05
+        elif self.condition == 'okay':
+            preparation_factor = 1.025
         else:
             preparation_factor = 1
 
@@ -271,6 +274,7 @@ class Plaster(Substrate):
             coverage_adjustment = 1.2
 
         super().__init__(*args, **kwargs, num_coats=num_coats, coverage_adjustment=coverage_adjustment)
+        self.preparation_factor = self.get_preparation_factor()
 
 
 class PrePaintedEmulsion(Substrate):
@@ -283,6 +287,7 @@ class PrePaintedEmulsion(Substrate):
             coverage_adjustment = 1
         super().__init__(*args, **kwargs, num_coats=num_coats, condition=condition,
                          coverage_adjustment=coverage_adjustment)
+        self.preparation_factor = self.get_preparation_factor()
 
 
 class PrePaintedWood(Substrate):
@@ -295,6 +300,7 @@ class PrePaintedWood(Substrate):
             coverage_adjustment = 1
         super().__init__(*args, **kwargs, num_coats=num_coats, condition=condition,
                          coverage_adjustment=coverage_adjustment)
+        self.preparation_factor = self.get_preparation_factor()
 
 
 class NewLiningPaper(Substrate):
@@ -332,6 +338,7 @@ class NewWood(Substrate):
             coverage_adjustment = 1.05
 
         super().__init__(*args, **kwargs, num_coats=num_coats, coverage_adjustment=coverage_adjustment)
+        self.preparation_factor = self.get_preparation_factor()
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -377,7 +384,7 @@ class PaintingSurface:
 
     def get_labour_price(self):
         labour_price = self.surface.area * self.labour_price_msq * self.surface.labour_adjustment * \
-            self.surface.substrate.num_coats
+            self.surface.substrate.num_coats * self.surface.substrate.preparation_factor
         return labour_price
 
     def get_total_price(self):

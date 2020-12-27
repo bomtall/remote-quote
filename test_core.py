@@ -236,8 +236,8 @@ def test_get_total_surface_area(args, kwargs, expected):
     [
         # Testing substrate
         ([1], dict(), 1),
-        ([1], dict(condition='poor'), 1.1),
-        ([1], dict(condition='okay'), 1.05)
+        ([1], dict(condition='poor'), 1.05),
+        ([1], dict(condition='okay'), 1.025)
     ],
 )
 def test_substrate(args, kwargs, expected):
@@ -506,7 +506,7 @@ job_2 = core.Job([room_3, room_4])
 
         (job_2.get_optimised_condition_job(400), {
             'budget': 400,
-            'total_budgeted_job_price': 211.87,
+            'total_budgeted_job_price': 219.07,
             'total_surface_area_in_budget': 18,
             'unpainted_surface_area': 21,
             'cost_for_remaining_items': 250.9,

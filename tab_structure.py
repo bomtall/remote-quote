@@ -4,6 +4,7 @@ import forms
 
 # ---------------------------------------------- Initialise form widgets dict ------------------------------------------
 
+# do not need this line
 form_widgets_dict = dict()
 
 def initialise_form_widgets():
@@ -89,7 +90,7 @@ def on_change_num_rooms(num_rooms_change):
             num_surfaces_max = 5
             room_widgets_surface_form_dict['dropdown_num_surfaces'] = widgets.Dropdown(
                 options=range(0, num_surfaces_max + 1),
-                description='Num Surfaces:',
+                description='# Surfaces:',
                 value=0,
             )
 
