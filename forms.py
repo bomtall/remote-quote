@@ -826,7 +826,8 @@ class RemoteQuoteForm(widgets.VBox):
             coverage_adjustment = substrate_form.input_substrate_details.input_coverage_adjustment.value
             substrate = core.Substrate(num_coats=num_coats, coverage_adjustment=coverage_adjustment)
         else:
-            substrate = substrate_form.substrate_input_to_substrate_class_dict[substrate_type]()
+            substrate = substrate_form.substrate_input_to_substrate_class_dict[substrate_type](
+                condition=substrate_form.input_condition.value)
         return substrate
 
     @staticmethod
