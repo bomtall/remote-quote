@@ -30,10 +30,14 @@ def test_surface_area(args, kwargs, expected):
     'args, kwargs, error_type, error_message',
     [
         # Testing non numeric inputs
-        (['a'], dict(), AssertionError, 'Input "area" needs to be numeric.'),
-        ([None, '2', 2], dict(), AssertionError, 'Input "length" needs to be numeric.'),
-        ([None, 2, '2'], dict(), AssertionError, 'Input "width" needs to be numeric.'),
-        ([], dict(area=1, labour_adjustment='a'), AssertionError, 'Input "labour_adjustment" needs to be numeric.'),
+        (['a'], dict(), AssertionError, 'Input "area" needs to be numeric and > 0.'),
+        ([None, '2', 2], dict(), AssertionError, 'Input "length" needs to be numeric and > 0.'),
+        ([None, 2, '2'], dict(), AssertionError, 'Input "width" needs to be numeric and > 0.'),
+        ([], dict(area=1, labour_adjustment='a'), AssertionError, 'Input "labour_adjustment" '
+                                                                  'needs to be numeric and > 0.'),
+        #Testing negative and zero number inputs
+        ([None, 2, -1], dict(), AssertionError, 'Input "width" needs to be numeric and > 0.'),
+        ([0], dict(), AssertionError, 'Input "area" needs to be numeric and > 0.'),
         # Testing when user only inputs two arguments but has to be one or three
         ([1, 2], dict(), AssertionError, 'Input either "area" or "length" and "width".'),
         ([1, None, 2], dict(), AssertionError, 'Input either "area" or "length" and "width".'),

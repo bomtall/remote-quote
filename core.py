@@ -29,21 +29,20 @@ class Surface:
             room_name=None
 
     ):
-
-
         if area is None:
             assert length is not None and width is not None, 'Input either "area" or "length" and "width".'
-            assert isinstance(length, Number), 'Input "length" needs to be numeric.'
-            assert isinstance(width, Number), 'Input "width" needs to be numeric.'
+            assert isinstance(length, Number) and length > 0, 'Input "length" needs to be numeric and > 0.'
+            assert isinstance(width, Number) and width > 0, 'Input "width" needs to be numeric and > 0.'
             area = length * width
         else:
             assert length is None and width is None, 'Input either "area" or "length" and "width".'
-            assert isinstance(area, Number), 'Input "area" needs to be numeric.'
+            assert isinstance(area, Number) and area > 0, 'Input "area" needs to be numeric and > 0.'
 
         if labour_adjustment is None:
             labour_adjustment = 1
         else:
-            assert isinstance(labour_adjustment, Number), 'Input "labour_adjustment" needs to be numeric.'
+            assert isinstance(labour_adjustment, Number) and labour_adjustment > 0, \
+                'Input "labour_adjustment" needs to be numeric and > 0.'
 
         if substrate is None:
             substrate = PrePaintedEmulsion()

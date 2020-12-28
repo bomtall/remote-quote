@@ -720,10 +720,11 @@ class RemoteQuoteForm(widgets.VBox):
         <meta name="viewport" content="width=device-width, initial-scale=1">
         </head>
         <body>
-        <a download="{filename}" href="data:text/csv;base64,{payload}" download>
-        <button class="p-Widget jupyter-widgets jupyter-button widget-button mod-info">
-        <i class="fa fa-download"> Download Quote</button>
-        </a>
+            <a download="{filename}" href="data:text/csv;base64,{payload}" download>
+                <button class="p-Widget jupyter-widgets jupyter-button widget-button mod-info">
+                    <i class="fa fa-download"> Download Quote
+                </button>
+            </a>
         </body>
         </html>
         '''
@@ -750,10 +751,11 @@ class RemoteQuoteForm(widgets.VBox):
                         <meta name="viewport" content="width=device-width, initial-scale=1">
                         </head>
                         <body>
-                        <a download="{filename}" href="data:text/csv;base64,{payload}" download>
-                        <button class="p-Widget jupyter-widgets jupyter-button widget-button mod-info"><i class="fa
-                         fa-download"> Optimised Job</button>
-                        </a>
+                            <a download="{filename}" href="data:text/csv;base64,{payload}" download>
+                                <button class="p-Widget jupyter-widgets jupyter-button widget-button mod-info">
+                                    <i class="fa fa-download"> Optimised Job
+                                </button>
+                            </a>
                         </body>
                         </html>
                         '''
@@ -888,18 +890,20 @@ class InstructionsButton(widgets.HTML):
         b64 = base64.b64encode(res.encode())
         payload = b64.decode()
 
+        # < link
+        # rel = "stylesheet"
+        # href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" >
         # BUTTONS
         html_buttons = '''<html>
                 <head>
-                <link rel="stylesheet"
-                 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
                 <meta name="viewport" content="width=device-width, initial-scale=1">
                 </head>
                 <body>
-                <a download="{filename}" href="data:text/csv;base64,{payload}" download>
-                <button class="p-Widget jupyter-widgets jupyter-button widget-button mod-info">
-                <i class="fa fa-download"></i> Download Info</button>
-                </a>
+                    <a download="{filename}" href="data:text/csv;base64,{payload}" download>
+                        <button class="p-Widget jupyter-widgets jupyter-button widget-button mod-info">
+                            <i class="fa fa-download"></i> Download Info
+                        </button>
+                    </a>
                 </body>
                 </html>
                 '''
