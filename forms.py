@@ -1,7 +1,6 @@
 import ipywidgets as widgets
 import core
 import tab_structure
-import paint_link
 import base64
 
 
@@ -21,12 +20,12 @@ SURFACE_TYPE_TO_CLASS_DICT = {
 }
 
 PAINT_FINISH_TYPE_TO_PAINT_CLASS_DICT = {
-    'Vinyl Matt Emulsion': paint_link.MattEmulsionPaint,
-    'Diamond Matt Emulsion': paint_link.DiamondMattEmulsion,
-    'Silk Emulsion': paint_link.SilkEmulsionPaint,
-    'Eggshell': paint_link.OilEggshell,
-    'Gloss': paint_link.OilGloss,
-    'Satinwood': paint_link.OilSatin,
+    'Vinyl Matt Emulsion': core.MattEmulsionPaint,
+    'Diamond Matt Emulsion': core.DiamondMattEmulsion,
+    'Silk Emulsion': core.SilkEmulsionPaint,
+    'Eggshell': core.OilEggshell,
+    'Gloss': core.OilGloss,
+    'Satinwood': core.OilSatin,
 }
 
 SUBSTRATE_INPUT_TO_SUBSTRATE_CLASS_DICT = {
@@ -58,11 +57,8 @@ HTML_PARAGRAPH_DICT = {
                             Select the number of rooms you want to estimate. Once selected, the number of rooms is set. 
                             Click refresh to start again.<br> 
                             Once you have created your rooms, select the correct number of
-                             surfaces in each room before you select any options.<br> Changing the number of surfaces
-                              within a room will re-set the details of those surfaces.<br>Hover over the info buttons in
-                               the surface form for help, or click "download info" below for a full set of
-                                instructions.<br>Set the name for each room to organise surfaces into groups for the 
-                                downloadable quote & optimisation''',
+                             surfaces in each room before you select any options.<br> Click "download info" below for
+                              a full set of instructions.''',
     'surface_paragraph_string': '''In this section select the details of your surface.
                                     Each surface added can be multiple surfaces of the same type within a room 
                                     i.e all the walls can be entered as one wall if they are to be painted the same
@@ -192,9 +188,6 @@ class NumPanesSelector(widgets.BoundedIntText):
 
 # ----------------------------------------------- Surface form ---------------------------------------------------------
 # Widget to combine widgets for area, surface, design and num panes
-
-
-
 class SurfaceForm(widgets.VBox):
     def __init__(self):
         #self.html_paragraph_dict = HTML_PARAGRAPH_DICT
@@ -346,7 +339,8 @@ class SubstrateForm(widgets.VBox):
         self.substrate_heading = widgets.HTML(
             '<h2 style="font-family:georgia;background-color:#EDF9F4; color:#4FAD99">Substrate Inputs</h2>')
         self.substrate_paragraph = widgets.HTML(
-            f'<p style="font-family:georgia; background-color:#EDF9F4; color:#4FAD99">{HTML_PARAGRAPH_DICT["substrate_paragraph"]}</p>')
+            f'<p style="font-family:georgia; background-color:#EDF9F4; color:#4FAD99">'
+            f'{HTML_PARAGRAPH_DICT["substrate_paragraph"]}</p>')
         self.substrate_info = SubstrateInfoButton()
         self.input_substrate = InputSubstrate()
         self.input_condition = InputCondition()
@@ -733,7 +727,8 @@ class RemoteQuoteForm(widgets.VBox):
         self.calculate_box.download_output.value = html_button
 
     def get_optimised_job(self, change):
-        optimise_function = self.calculate_box.optimise_dropdown.optimisation_type_to_optimiser[self.calculate_box.optimise_dropdown.value]
+        optimise_function = self.calculate_box.optimise_dropdown.optimisation_type_to_optimiser[
+            self.calculate_box.optimise_dropdown.value]
         optimised_job = optimise_function(self.job, self.calculate_box.budget_input.value)
         self.calculate_box.optimised_output.value = f'{optimised_job.get_summary()}'
         res = f'''

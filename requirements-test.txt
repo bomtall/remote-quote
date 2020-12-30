@@ -1,4 +1,5 @@
 pytest
 pytest-tornasync
 pytest-pycharm
+coverage
 -r requirements.txt

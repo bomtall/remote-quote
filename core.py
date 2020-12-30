@@ -218,7 +218,6 @@ class Substrate:
     def __init__(
             self,
             num_coats=1,
-            porosity=None,
             condition=None,
             coverage_adjustment=1,
             condition_assumption=None,
@@ -232,7 +231,7 @@ class Substrate:
 
         if condition is None:
             condition = 'good'
-        assert isinstance(num_coats, int) or num_coats is None, 'Input "num_coats" needs to be an integer or None'
+        assert isinstance(num_coats, int) and num_coats > 0, 'Input "num_coats" needs to be a non-zero integer'
         assert (isinstance(coverage_adjustment, Number) and coverage_adjustment > 0.0) \
                or (coverage_adjustment is None), 'Input needs to be numeric and > 0, or None'
 
@@ -242,10 +241,8 @@ class Substrate:
         if condition_assumption is None:
             condition_assumption = ConditionAssumptions()
 
-        # TODO add in validation for porosity
 
         self.num_coats = num_coats
-        self.porosity = porosity
         self.condition = condition
         self.preparation_factor = self.get_preparation_factor()
         self.coverage_adjustment = coverage_adjustment
@@ -273,7 +270,7 @@ class Plaster(Substrate):
             coverage_adjustment = 1.2
 
         super().__init__(*args, **kwargs, num_coats=num_coats, coverage_adjustment=coverage_adjustment)
-        self.preparation_factor = self.get_preparation_factor()
+
 
 
 class PrePaintedEmulsion(Substrate):
@@ -286,7 +283,7 @@ class PrePaintedEmulsion(Substrate):
             coverage_adjustment = 1
         super().__init__(*args, **kwargs, num_coats=num_coats, condition=condition,
                          coverage_adjustment=coverage_adjustment)
-        self.preparation_factor = self.get_preparation_factor()
+
 
 
 class PrePaintedWood(Substrate):
@@ -299,7 +296,7 @@ class PrePaintedWood(Substrate):
             coverage_adjustment = 1
         super().__init__(*args, **kwargs, num_coats=num_coats, condition=condition,
                          coverage_adjustment=coverage_adjustment)
-        self.preparation_factor = self.get_preparation_factor()
+
 
 
 class NewLiningPaper(Substrate):
@@ -311,7 +308,7 @@ class NewLiningPaper(Substrate):
 
         super().__init__(*args, **kwargs, num_coats=num_coats, coverage_adjustment=coverage_adjustment)
 
-        self.preparation_factor = self.get_preparation_factor()
+
 
 
 class Mdf(Substrate):
@@ -326,18 +323,20 @@ class Mdf(Substrate):
 
         super().__init__(*args, **kwargs, num_coats=num_coats, coverage_adjustment=coverage_adjustment, primed=primed)
 
-        self.preparation_factor = self.get_preparation_factor()
+
 
 
 class NewWood(Substrate):
-    def __init__(self, *args, num_coats=None, coverage_adjustment=None, **kwargs):
-        if num_coats is None:
+    def __init__(self, *args, num_coats=None, coverage_adjustment=None, primed=False, **kwargs):
+        if num_coats is None and primed is False:
             num_coats = 3
+        if num_coats is None and primed is True:
+            num_coats = 2
         if coverage_adjustment is None:
             coverage_adjustment = 1.05
 
         super().__init__(*args, **kwargs, num_coats=num_coats, coverage_adjustment=coverage_adjustment)
-        self.preparation_factor = self.get_preparation_factor()
+
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -346,30 +345,122 @@ class NewWood(Substrate):
 class Paint:
     def __init__(self, price, unit, coverage,):
 
-        assert isinstance(price, Number), 'Input "price" needs to be numeric.'
-        assert isinstance(unit, Number), 'Input "unit" needs to be numeric.'
-        assert isinstance(coverage, Number), 'Input "coverage" needs to be numeric.'
+        assert isinstance(price, Number) and price >= 0, 'Input "price" needs to be numeric and greater than or equal' \
+                                                         ' to zero.'
+        assert isinstance(unit, Number) and unit > 0, 'Input "unit" needs to be numeric and greater than 0.'
+        assert isinstance(coverage, Number) and coverage > 0, 'Input "coverage" needs to be numeric and greater than 0.'
 
         self.price = price
         self.unit = unit
         self.coverage = coverage
 
 
+class EmulsionPaint(Paint):
+    def __init__(self, price=None, unit=None, coverage=None):
+        super().__init__(price, unit, coverage)
+
+class MattEmulsionPaint(EmulsionPaint):
+    def __init__(self, price=None, unit=None, coverage=None):
+
+        if price is None:
+            price = 37.87
+        if unit is None:
+            unit = 5
+        if coverage is None:
+            coverage = 50
+
+        super().__init__(price, unit, coverage)
+
+
+class SilkEmulsionPaint(EmulsionPaint):
+    def __init__(self, price=None, unit=None, coverage=None):
+
+        if price is None:
+            price = 46.27
+        if unit is None:
+            unit = 5
+        if coverage is None:
+            coverage = 50
+
+        super().__init__(price, unit, coverage)
+
+class DiamondMattEmulsion(EmulsionPaint):
+    def __init__(self, price=None, unit=None, coverage=None):
+        if price is None:
+            price = 50.03
+        if unit is None:
+            unit = 5
+        if coverage is None:
+            coverage = 50
+        super().__init__(price, unit, coverage)
+
+class OilPaint(Paint):
+    def __init__(self, price=None, unit=None, coverage=None):
+        super().__init__(price, unit, coverage)
+
+class OilEggshell(OilPaint):
+    def __init__(self, price=None, unit=None, coverage=None):
+        if price is None:
+            price = 32.07
+        if unit is None:
+            unit = 2.5
+        if coverage is None:
+            coverage = 25
+
+        super().__init__(price, unit, coverage)
+
+
+class OilGloss(OilPaint):
+    def __init__(self, price=None, unit=None, coverage=None):
+
+        if price is None:
+            price = 19.00
+        if unit is None:
+            unit = 2.5
+        if coverage is None:
+            coverage = 25
+
+        super().__init__(price, unit, coverage)
+
+class OilSatin(OilPaint):
+    def __init__(self, price=None, unit=None, coverage=None):
+
+        if price is None:
+            price = 37.20
+        if unit is None:
+            unit = 2.5
+        if coverage is None:
+            coverage = 25
+
+        super().__init__(price, unit, coverage)
+
+
+
+class Primer(Paint):
+    def __init__(self, price=None, unit=None, coverage=None):
+
+        if price is None:
+            price = 31.15
+        if unit is None:
+            unit = 2.5
+        if coverage is None:
+            coverage = 25
+
+        super().__init__(price, unit, coverage)
+
+
 # ----------------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------- Painting Surface -----------------------------------------------------
-# TODO add validation for inputs to painting surface
 class PaintingSurface:
     def __init__(self, surface, paint, labour_price_msq=None):
         if labour_price_msq is None:
             labour_price_msq = 4
-
         self.surface = surface
         self.paint = paint
         self.labour_price_msq = labour_price_msq
-
-# TODO make calculation reflect unit and coverage properly
-        # if surface.substrate in [NewWood, MDF, ]
+        assert isinstance(surface, Surface), 'Input needs to be a Surface object'
+        assert isinstance(paint, Paint), 'Input needs to be a Paint object'
 
     def get_units_of_paint(self):
         units_of_paint = math.ceil(
@@ -408,6 +499,10 @@ class PaintingSurface:
 # -------------------------------------------------- Room --------------------------------------------------------------
 class Room:
     def __init__(self, painting_surfaces, name=None):
+        # asserting that the list passed in is a list of painting surface objects
+        for painting_surface in painting_surfaces:
+            assert isinstance(painting_surface, PaintingSurface), 'Input needs to be a list of painting surface objects'
+
         if name is None:
             name = 'my room'
 
@@ -464,12 +559,26 @@ class Room:
 # -------------------------------------------------- Job ---------------------------------------------------------------
 class Job:
     def __init__(self, rooms, name=None):
+        # asserting that the list passed in is a list of room objects
+        for room in rooms:
+            assert isinstance(room, Room), 'Input needs to be a list of room objects'
         self.rooms = rooms
-
+        # assigning job name
         if name is None:
             name = 'my job'
-
         self.name = name
+
+    def get_paint_price(self):
+        total_job_paint_price = 0
+        for room in self.rooms:
+            total_job_paint_price += room.get_paint_price()
+        return total_job_paint_price
+
+    def get_labour_price(self):
+        total_job_labour_price = 0
+        for room in self.rooms:
+            total_job_labour_price += room.get_labour_price()
+        return total_job_labour_price
 
     def get_total_price(self):
         total_job_price = 0
