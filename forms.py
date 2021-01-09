@@ -870,6 +870,17 @@ Prices for the paint finishes in this interface are taken from www.duluxdecorati
 To use another paint, choose custom paint and input the required paint details price per unit, unit size, coverage.
 For smaller surfaces, input a smaller unit size. If you already have the paint, or have bought it for another surface
 input the price as 0. Paint needed is rounded up to whole unit sizes.
+Descriptive words for the condition of a surface substrate are defined as such:
+
+poor = Poor condition is where lots of preparation is required. Surfaces exhibit cracking, gaps not filled,
+        previously poorly painted with drips, bits or flaking in the surface paint. Stains from oil or water may be 
+        present. There may be joinings of the paper which is painted which requite sticking back. If any of the above
+        or multiple faults then condition is poor
+okay = Okay condition is where there are some faults with the surface and a small amount of preparation is 
+        required, the surface may be marked and old but it sound, there may be a few fine cracks or small gaps to 
+        fill
+good = Good condition is where there is almost no preparation required, a light sand, limited fine cracks in
+         corners but otherwise a good smooth surface which you are happy with
 
         '''
         # FILE

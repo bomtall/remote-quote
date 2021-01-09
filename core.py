@@ -241,7 +241,6 @@ class Substrate:
         if condition_assumption is None:
             condition_assumption = ConditionAssumptions()
 
-
         self.num_coats = num_coats
         self.condition = condition
         self.preparation_factor = self.get_preparation_factor()
@@ -734,21 +733,32 @@ def get_total_surface_area(surfaces):
 class ConditionAssumptions():
     def __init__(self):
         poor = '''Poor condition is where lots of preparation is required. Surfaces exhibit cracking, gaps not filled,
-        previously poorly painted with drips and fibres in the surface paint.'''
-        okay = '''Okay condition is where some small amount of preparation is needed, 
-        there is very little filling and sanding required'''
-        good = '''Good condition is where there is almost no preparation required'''
+        previously poorly painted with drips, fibres or flaking in the surface paint. Stains from oil or water may be 
+        present. There may be joinings of the paper which is painted which requite sticking back. If any of the above
+        or multiple faults then condition is poor'''
+        okay = '''Okay condition is where there are some faults with the surface and a small amount of preparation is 
+        required, the surface may be marked and old but it sound, there may be a few fine cracks or small gaps to 
+        fill'''
+        good = '''Good condition is where there is almost no preparation required, a light sand, limited fine cracks in
+         corners but otherwise a good smooth surface which you are happy with'''
 
         self.poor = poor
         self.okay = okay
         self.good = good
 
-    @staticmethod
-    def get_condition_assumption(condition):
+    def get_condition_assumption(self, condition):
         if condition == 'poor':
             return 'poor_example.jpg'
         else:
             return 'poor_example.jpg'
+
+    def get_condition_description(self, condition):
+        if condition == 'poor':
+            return self.poor
+        elif condition == 'okay':
+            return self.okay
+        elif condition == 'good':
+            return self.good
 
 # optional stuff
 
