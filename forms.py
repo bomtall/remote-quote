@@ -58,7 +58,8 @@ HTML_PARAGRAPH_DICT = {
                             Click refresh to start again.<br> 
                             Once you have created your rooms, select the correct number of
                              surfaces in each room before you select any options.<br> Click "download info" below for
-                              a full set of instructions.''',
+                              a full set of instructions.<br>
+                              If not used for 15 minutes you will need to re-load RemoteQuote again.''',
     'surface_paragraph_string': '''In this section select the details of your surface.
                                     Each surface added can be multiple surfaces of the same type within a room 
                                     i.e all the walls can be entered as one wall if they are to be painted the same
@@ -620,34 +621,6 @@ class OptimiseButton(widgets.Button):
 
         self.style.button_color = 'pink'
 
-class DownloadOptimisedJobButton(widgets.HTML):
-    def __init__(self):
-        res = f'''
-            Your RemoteQuote Instructions
-        '''
-        # FILE
-        filename = 'quote.txt'
-        b64 = base64.b64encode(res.encode())
-        payload = b64.decode()
-
-        # BUTTONS
-        html_buttons = '''<html>
-                <head>
-                <meta name="viewport" content="width=device-width, initial-scale=1">
-                </head>
-                <body>
-                <a download="{filename}" href="data:text/csv;base64,{payload}" download>
-                <button class="p-Widget jupyter-widgets jupyter-button widget-button mod-info">Download Instructions
-                </button>
-                </a>
-                </body>
-                </html>
-                '''
-
-        html_button = html_buttons.format(payload=payload, filename=filename)
-        super().__init__(html_button)
-
-
 # -------------------------------------------- Calculation box ---------------------------------------------------------
 # Calculate box combining widgets for estimate, budget input, optimise, download
 class CalculateBox(widgets.VBox):
@@ -700,7 +673,9 @@ class RemoteQuoteForm(widgets.VBox):
     def get_download(self):
         res = f'''
             Your RemoteQuote
-            {self.job.get_breakdown()}
+
+    Breakdown:
+    {self.job.get_breakdown()}
 
         '''
         # FILE
@@ -733,7 +708,13 @@ class RemoteQuoteForm(widgets.VBox):
         self.calculate_box.optimised_output.value = f'{optimised_job.get_summary()}'
         res = f'''
                     Your RemoteQuote Optimised Job
-                    {optimised_job.get_breakdown()}
+
+
+        Summary:
+        {optimised_job.get_summary()} 
+
+        Breakdown:
+        {optimised_job.get_breakdown()}
                 '''
         # FILE
         filename = 'quote.txt'
@@ -844,7 +825,7 @@ class RemoteQuoteForm(widgets.VBox):
 
 
 # ----------------------------------------------------------------------------------------------------------------------
-# ---------------------------------------------- Refresh button --------------------------------------------------------
+# ---------------------------------------------- GUI HTML Heading & Paragraph ------------------------------------------
 class GUIHeading(widgets.HTML):
     def __init__(self):
         heading = '<h1 style="color:#4FAD99; background-color:#EDF9F4; font-family:georgia;">RemoteQuote</h1>'
@@ -879,6 +860,17 @@ class InstructionsButton(widgets.HTML):
     def __init__(self):
         res = f'''
             Your RemoteQuote Instructions
+If RemoteQuote is left inactive in a browser for 15 minutes the server hosting it will go down. You will need to re-load
+RemoteQuote and start again. Unfortunately your quote will be lost. If you need to stop part way throguh you could
+estimate what you have so far and download the quote to save it. This information could then be re-entered.
+RemoteQuote is designed to provide price estimations of Painting & Decorating work to be undertaken by a professional.
+Estimates by a professional may vary and RemoteQuote should be used mainly as a guide and budgeting tool.
+Tools have been incorporated to aid budgeting and these can be used to prioritise and order your quote.
+Prices for the paint finishes in this interface are taken from www.duluxdecoratingcentre.co.uk and include VAT.
+To use another paint, choose custom paint and input the required paint details price per unit, unit size, coverage.
+For smaller surfaces, input a smaller unit size. If you already have the paint, or have bought it for another surface
+input the price as 0. Paint needed is rounded up to whole unit sizes.
+
         '''
         # FILE
         filename = 'quote.txt'

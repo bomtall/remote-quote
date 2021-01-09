@@ -498,8 +498,8 @@ job_1 = core.Job([room_1, room_2])
     'job, expected',
     [
         #total prices surface1=62 surface2=77.87 surface3=210.03 surface4=40.87 approx 8 10 20 1
-        (job_1, [room_test_painting_surface_4, room_test_painting_surface, room_test_painting_surface_2, room_test_painting_surface_3])
-
+        (job_1, [room_test_painting_surface_4, room_test_painting_surface, room_test_painting_surface_2,
+                 room_test_painting_surface_3])
     ],
 )
 def test_get_painting_surface_list(job, expected):

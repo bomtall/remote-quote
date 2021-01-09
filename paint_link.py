@@ -18,7 +18,7 @@ class Matt(core.Paint):
     def __init__(self,):
         coverage = 50
         unit = 5
-        #price = get_price("https://www.duluxdecoratorcentre.co.uk/dulux-trade-vinyl-matt", 19)
+        price = get_price("https://www.duluxdecoratorcentre.co.uk/dulux-trade-vinyl-matt", 19)
         price = 37.87
         super().__init__(price, unit, coverage)
 
@@ -28,7 +28,7 @@ class Diamond(core.Paint):
     def __init__(self):
         coverage = 50
         unit = 5
-        #price = get_price("https://www.duluxdecoratorcentre.co.uk/dulux-trade-diamond-matt", 6)
+        price = get_price("https://www.duluxdecoratorcentre.co.uk/dulux-trade-diamond-matt", 6)
         price = 50.03
         super().__init__(price, unit, coverage)
 

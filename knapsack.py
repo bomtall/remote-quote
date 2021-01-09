@@ -1,8 +1,12 @@
 def optimal_knapsack(capacity, values, costs):
+
+    # adding 0th column to values/costs on the y axis
     values = [0] + values
     costs = [0] + costs
+
     # initialising matrix k
     k = []
+    # adding 0th column to capacity on x axis
     list_budget_size = range(capacity + 1)
     m = range(len(list_budget_size))
     n = range(len(costs))
@@ -13,7 +17,7 @@ def optimal_knapsack(capacity, values, costs):
             l.append(-1)
         k.append(l)
 
-    # filling in matrix k
+    # filling in matrix 'k'
     for i in n:
         for w in m:
             if i == 0 or w == 0:
