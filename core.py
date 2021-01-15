@@ -462,7 +462,7 @@ class PaintingSurface:
         assert isinstance(paint, Paint), 'Input needs to be a Paint object'
 
     def get_units_of_paint(self):
-        units_of_paint = math.ceil(
+        units_of_paint = (
             (self.surface.area / (self.paint.coverage / self.surface.substrate.coverage_adjustment))
             * self.surface.substrate.num_coats)
         return units_of_paint
