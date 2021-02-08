@@ -710,10 +710,10 @@ class RemoteQuoteForm(widgets.VBox):
                     Your RemoteQuote Optimised Job
 
 
-        Summary:
+        A Summary of Your Optimised Quote:
         {optimised_job.get_summary()} 
 
-        Breakdown:
+        A Detailed Breakdown of Your Optimised Quote:
         {optimised_job.get_breakdown()}
                 '''
         # FILE
@@ -888,10 +888,6 @@ good = Good condition is where there is almost no preparation required, a light 
         b64 = base64.b64encode(res.encode())
         payload = b64.decode()
 
-        # < link
-        # rel = "stylesheet"
-        # href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" >
-        # BUTTONS
         html_buttons = '''<html>
                 <head>
                 <meta name="viewport" content="width=device-width, initial-scale=1">

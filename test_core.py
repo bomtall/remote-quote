@@ -61,31 +61,31 @@ def test_surface_error(args, kwargs, error_type, error_message):
     [
         # Testing Labour Adjustment and design
         ([1], dict(), core.Surface, 1, None),
-        ([1], dict(), core.Wall, 1, None),
-        ([1], dict(), core.Ceiling, 1.1, None),
-        ([1], dict(), core.Door, 2, 'Flat door'),
+        ([1], dict(), core.Wall, 0.9, None),
+        ([1], dict(), core.Ceiling, 0.95, None),
+        ([1], dict(), core.Door, 1.6, 'Flat door'),
         ([1], dict(labour_adjustment=2.5), core.Door, 2.5, 'Flat door'),
-        ([1], dict(design='Flat door'), core.Door, 2, 'Flat door'),
-        ([1], dict(design='Panelled'), core.Door, 2.1, 'Panelled'),
-        ([1], dict(design='Cutting in', num_panes=2), core.Door, 2.5, 'Cutting in'),
-        ([1], dict(num_panes=12), core.Door, 15, 'Cutting in'),
-        ([1], dict(num_panes=6), core.Door, 10.5, 'Cutting in'),
-        ([1], dict(), core.Doorframe, 2, 'Standard'),
+        ([1], dict(design='Flat door'), core.Door, 1.6, 'Flat door'),
+        ([1], dict(design='Panelled'), core.Door, 1.65, 'Panelled'),
+        ([1], dict(design='Cutting in', num_panes=2), core.Door, 2.7, 'Cutting in'),
+        ([1], dict(num_panes=12), core.Door, 5, 'Cutting in'),
+        ([1], dict(num_panes=6), core.Door, 2.7, 'Cutting in'),
+        ([1], dict(), core.Doorframe, 3.2, 'Standard'),
         ([1], dict(labour_adjustment=2.5), core.Doorframe, 2.5, 'Standard'),
-        ([1], dict(design='Standard'), core.Doorframe, 2, 'Standard'),
-        ([1], dict(design='Victorian'), core.Doorframe, 2.1, 'Victorian'),
-        ([1], dict(design='Elaborate'), core.Doorframe, 2.2, 'Elaborate'),
-        ([1], dict(), core.Skirtingboard, 1.1, None),
-        ([1], dict(), core.Window, 2, None),
-        ([1], dict(num_panes=4), core.Window, 8, None),
-        ([1], dict(), core.Windowsill, 1.1, None),
+        ([1], dict(design='Standard'), core.Doorframe, 3.2, 'Standard'),
+        ([1], dict(design='Victorian'), core.Doorframe, 3.6, 'Victorian'),
+        ([1], dict(design='Elaborate'), core.Doorframe, 4.2, 'Elaborate'),
+        ([1], dict(), core.Skirtingboard, 2.5, None),
+        ([1], dict(), core.Window, 1.325, None),
+        ([1], dict(num_panes=4), core.Window, 5.3, None),
+        ([1], dict(), core.Windowsill, 8.5, None),
         ([1], dict(), core.Spindle, 2, 'Square'),
         ([1], dict(labour_adjustment=3), core.Spindle, 3, 'Square'),
         ([1], dict(design='Square'), core.Spindle, 2, 'Square'),
         ([1], dict(design='Shaped'), core.Spindle, 2.1, 'Shaped'),
         ([1], dict(design='Elaborate'), core.Spindle, 2.2, 'Elaborate'),
         ([1], dict(), core.ElaborateCornice, 2, None),
-        ([1], dict(), core.Radiator, 2, None),
+        ([1], dict(), core.Radiator, 3.7, None),
 
 
     ]
@@ -358,20 +358,20 @@ def test_paint_classes(args, kwargs, paint_class, expected):
 @pytest.mark.parametrize(
     'args, kwargs, expected',
     [
-        ([core.Wall(10), core.Paint(30, 5, 17)], dict(), 70),
-        ([], {'surface' : core.Wall(50), 'paint' : core.Paint(30, 5, 17)}, 290),
+        ([core.Wall(10), core.Paint(30, 5, 17)], dict(), 39.52),
+        ([], {'surface' : core.Wall(50), 'paint' : core.Paint(30, 5, 17)}, 197.64),
         ([], {'surface' : core.Wall(50, substrate=core.Plaster(
-            coverage_adjustment=1)), 'paint' : core.Paint(30, 5, 17)}, 580),
+            coverage_adjustment=1)), 'paint' : core.Paint(30, 5, 17)}, 395.29),
         ([], {'surface' : core.Skirtingboard(50, substrate=core.NewWood(
-            coverage_adjustment=1)), 'paint' : core.Paint(30, 5, 17)}, 930),
-        ([], {'surface' : core.Wall(50, substrate=core.Plaster()), 'paint' : core.Paint(30, 5, 17)}, 640),
-        ([], {'surface' : core.Windowsill(0.36, substrate=core.Mdf()), 'paint' : core.Paint(30, 5, 17)}, 34.752),
+            coverage_adjustment=1)), 'paint' : core.Paint(30, 5, 17)}, 1552.94),
+        ([], {'surface' : core.Wall(50, substrate=core.Plaster()), 'paint' : core.Paint(30, 5, 17)}, 402.35),
+        ([], {'surface' : core.Windowsill(0.36, substrate=core.Mdf()), 'paint' : core.Paint(30, 5, 17)}, 37.17),
 
     ]
 )
 def test_painting_surface_class(args, kwargs, expected):
     total = core.PaintingSurface(*args, **kwargs)
-    assert total.get_total_price() == pytest.approx(expected, 0.001)
+    assert total.get_total_price() == pytest.approx(expected, 0.01)
 
 
 @pytest.mark.parametrize(
@@ -401,19 +401,19 @@ room_test_painting_surface_4 = core.PaintingSurface(core.Skirtingboard(1, substr
     'args, kwargs, expected',
     [
 
-        ([], dict(painting_surfaces = [room_test_painting_surface]*3), [186, 90, 96]),
-        ([[room_test_painting_surface]*3], dict(), [186, 90, 96]),
-        ([], dict(painting_surfaces = [room_test_painting_surface_2]), [77.87, 37.87, 40]),
-        ([[room_test_painting_surface, room_test_painting_surface_2]], dict(), [139.87, 67.87, 72]),
+        ([], dict(painting_surfaces = [room_test_painting_surface]*3), [94.87, 8.47, 86.4]),
+        ([[room_test_painting_surface]*3], dict(), [94.87, 8.47, 86.4]),
+        ([], dict(painting_surfaces = [room_test_painting_surface_2]), [40.45, 4.45, 36]),
+        ([[room_test_painting_surface, room_test_painting_surface_2]], dict(), [72.07, 7.27, 64.8]),
         ([[room_test_painting_surface_3, room_test_painting_surface_4, room_test_painting_surface]], dict(),
-         [312.9, 112.1, 200.8])
+         [225.70, 32.9, 192.8])
     ],
 )
 def test_room(args, kwargs, expected):
     total = core.Room(*args, **kwargs)
-    assert total.get_total_price() == expected[0]
-    assert total.get_paint_price() == expected[1]
-    assert total.get_labour_price() == expected[2]
+    assert total.get_total_price() == pytest.approx(expected[0], 0.01)
+    assert total.get_paint_price() == pytest.approx(expected[1], 0.01)
+    assert total.get_labour_price() == pytest.approx(expected[2], 0.01)
 
 
 @pytest.mark.parametrize(
@@ -434,15 +434,15 @@ room_2 = core.Room([room_test_painting_surface_3, room_test_painting_surface_4])
 @pytest.mark.parametrize(
     'args, kwargs, expected',
     [
-        ([[room_1, room_2]], dict(), [390.77, 149.97, 240.8]),
+        ([[room_1, room_2]], dict(), [266.16, 37.36, 228.8]),
 
     ],
 )
 def test_job(args, kwargs, expected):
     total = core.Job(*args, **kwargs)
-    assert total.get_total_price() == expected[0]
-    assert total.get_paint_price() == expected[1]
-    assert total.get_labour_price() == expected[2]
+    assert total.get_total_price() == pytest.approx(expected[0], 0.01)
+    assert total.get_paint_price() == pytest.approx(expected[1], 0.01)
+    assert total.get_labour_price() == pytest.approx(expected[2], 0.01)
 
 @pytest.mark.parametrize(
     'args, kwargs, error_type, error_message',
@@ -461,10 +461,10 @@ def test_job_assertion(args, kwargs, error_type, error_message):
     'args, kwargs, expected',
     [
         ([[room_test_painting_surface, room_test_painting_surface_2]], dict(), [
-            {'surface_name': 'Wall', 'room_name': 'my room', 'total_price': 62, 'labour_price': 32, 'paint_price': 30,
-             'units_of_paint': 1, 'surface_area': 8},
-            {'surface_name': 'Wall', 'room_name': 'my room', 'total_price': 77.87, 'labour_price': 40, 'paint_price': 37.87,
-             'units_of_paint': 1, 'surface_area': 10}]),
+            {'surface_name': 'Wall', 'room_name': 'my room', 'total_price': 31.62, 'labour_price': 28.8, 'paint_price': 2.82,
+             'units_of_paint': 0.09, 'surface_area': 8},
+            {'surface_name': 'Wall', 'room_name': 'my room', 'total_price': 40.46, 'labour_price': 36, 'paint_price': 4.46,
+             'units_of_paint': 0.12, 'surface_area': 10}]),
 
     ],
 )
@@ -479,10 +479,10 @@ def test_room_breakdown(args, kwargs, expected):
     'args, kwargs, expected',
     [
         ([[room_1, room_1]], dict(), [
-            [{'surface_name': 'Wall', 'room_name': 'my room', 'total_price': 62, 'labour_price': 32, 'paint_price': 30, 'units_of_paint': 1, 'surface_area': 8},
-            {'surface_name': 'Wall', 'room_name': 'my room','total_price': 77.87, 'labour_price': 40, 'paint_price': 37.87, 'units_of_paint': 1, 'surface_area': 10}],
-            [{'surface_name': 'Wall', 'room_name': 'my room', 'total_price': 62, 'labour_price': 32, 'paint_price': 30, 'units_of_paint': 1, 'surface_area': 8},
-            {'surface_name': 'Wall', 'room_name': 'my room','total_price': 77.87, 'labour_price': 40, 'paint_price': 37.87, 'units_of_paint': 1, 'surface_area': 10}]]),
+            [{'surface_name': 'Wall', 'room_name': 'my room', 'total_price': 31.62, 'labour_price': 28.8, 'paint_price': 2.82, 'units_of_paint': 0.09, 'surface_area': 8},
+            {'surface_name': 'Wall', 'room_name': 'my room','total_price': 40.46, 'labour_price': 36, 'paint_price': 4.46, 'units_of_paint': 0.12, 'surface_area': 10}],
+            [{'surface_name': 'Wall', 'room_name': 'my room', 'total_price': 31.62, 'labour_price': 28.8, 'paint_price': 2.82, 'units_of_paint': 0.09, 'surface_area': 8},
+            {'surface_name': 'Wall', 'room_name': 'my room','total_price': 40.46, 'labour_price': 36, 'paint_price': 4.46, 'units_of_paint': 0.12, 'surface_area': 10}]]),
 
 
     ],
@@ -511,7 +511,7 @@ def test_get_painting_surface_list(job, expected):
     [
         # total prices surface1=62 surface2=77.87 surface3=210.03 surface4=40.87 approx
         # areas of surfaces 1,2,3,4 respectively 8 10 20 1
-        (job_1.get_painting_surface_list(), [1, 8, 10, 20], [41, 62, 78, 211])
+        (job_1.get_painting_surface_list(), [1, 8, 10, 20], [22, 32, 41, 173])
 
     ],
 )
@@ -525,7 +525,7 @@ def test_get_area_cost_lists(surface_list, expected_values, expected_costs):
     'job, budget, expected_budgeted_list',
     [
 
-        (job_1, 300, [room_test_painting_surface_3, room_test_painting_surface_2])
+        (job_1, 200, [room_test_painting_surface_3, room_test_painting_surface_4])
 
     ],
 )
@@ -538,12 +538,12 @@ def test_get_optimised_job(job, budget, expected_budgeted_list):
     'optimised_job, expected_summary_dict',
     [
 
-        (job_1.get_optimised_job(300), {
-            'budget': 300,
-            'total_budgeted_job_price': 287.9,
-            'total_surface_area_in_budget': 30,
-            'unpainted_surface_area': 9,
-            'cost_for_remaining_items': 102.87})
+        (job_1.get_optimised_job(200), {
+            'budget': 200,
+            'total_budgeted_job_price': 194.08,
+            'total_surface_area_in_budget': 21,
+            'unpainted_surface_area': 18,
+            'cost_for_remaining_items': 72.08})
 
     ],
 )
@@ -592,10 +592,10 @@ job_2 = core.Job([room_3, room_4])
 
         (job_2.get_optimised_condition_job(400), {
             'budget': 400,
-            'total_budgeted_job_price': 219.07,
+            'total_budgeted_job_price': 150.64,
             'total_surface_area_in_budget': 18,
             'unpainted_surface_area': 21,
-            'cost_for_remaining_items': 250.9,
+            'cost_for_remaining_items': 194.08,
         })
     ],
 )

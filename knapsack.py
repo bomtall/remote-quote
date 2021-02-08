@@ -4,7 +4,7 @@ def optimal_knapsack(capacity, values, costs):
     values = [0] + values
     costs = [0] + costs
 
-    # initialising matrix k
+    # initialising matrix kj
     k = []
     # adding 0th column to capacity on x axis
     list_budget_size = range(capacity + 1)

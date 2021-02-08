@@ -65,10 +65,12 @@ class Surface:
 # ----------------------------------------------------------------------------------------------------------------------
 # ------------------------------------------ Surface subclasses --------------------------------------------------------
 class Wall(Surface):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, labour_adjustment=None, **kwargs):
         description = 'An interior wall'
         name = 'Wall'
-        super().__init__(*args, **kwargs, description=description, name=name)
+        if labour_adjustment is None:
+            labour_adjustment = 0.9
+        super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, description=description, name=name)
 
 
 class Ceiling(Surface):
@@ -76,7 +78,7 @@ class Ceiling(Surface):
         description = 'An interior ceiling'
         name = 'Ceiling'
         if labour_adjustment is None:
-            labour_adjustment = 1.1
+            labour_adjustment = 0.95
 
         super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, description=description, name=name)
 
@@ -104,14 +106,14 @@ class Door(Surface):
                (num_panes == 0 and design in ['Panelled', 'Flat door', None]), 'Only "Cutting in" doors have panes > 0'
 
         if labour_adjustment is None:
-            labour_adjustment = 2
+            labour_adjustment = 1.6
             if design == 'Panelled':
-                labour_adjustment = 2.1
+                labour_adjustment = 1.65
             elif design == 'Cutting in':
-                if num_panes < 3:
-                    labour_adjustment = 2.5
+                if num_panes < 7:
+                    labour_adjustment = 2.7
                 else:
-                    labour_adjustment = min(3/2 * (num_panes + 1), 15)
+                    labour_adjustment = min(5/12 * num_panes, 5.5)
 
         super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, design=design,
                          design_options=design_options, description=description, name=name, num_panes=num_panes)
@@ -130,11 +132,11 @@ class Doorframe(Surface):
                 'input needs to be "Standard", "Victorian", "Elaborate" or None'
 
         if labour_adjustment is None:
-            labour_adjustment = 2
+            labour_adjustment = 3.2
             if design == 'Victorian':
-                labour_adjustment = 2.1
+                labour_adjustment = 3.6
             elif design == 'Elaborate':
-                labour_adjustment = 2.2
+                labour_adjustment = 4.2
 
         super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, design=design,
                          design_options=design_options, description=description, name=name)
@@ -145,7 +147,7 @@ class Skirtingboard(Surface):
         description = 'Skirting board along the bottom of a wall'
         name = 'Skirting board'
         if labour_adjustment is None:
-            labour_adjustment = 1.1
+            labour_adjustment = 2.5
         super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, description=description, name=name)
 
 
@@ -155,7 +157,7 @@ class Window(Surface):
         name = 'Window'
         assert isinstance(num_panes, int) and num_panes >= 1, '"num_panes" needs to be an integer and >= 1'
         if labour_adjustment is None:
-            labour_adjustment = (2 * num_panes)
+            labour_adjustment = (1.325 * num_panes)
 
         super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, description=description,
                          name=name, num_panes=num_panes)
@@ -166,7 +168,7 @@ class Windowsill(Surface):
         description = 'The interior horizontal sill beneath a window'
         name = 'Windowsill'
         if labour_adjustment is None:
-            labour_adjustment = 1.1
+            labour_adjustment = 8.5
         super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, description=description, name=name)
 
 
@@ -207,7 +209,7 @@ class Radiator(Surface):
         description = 'Enamelled modern radiator'
         name = 'Radiator'
         if labour_adjustment is None:
-            labour_adjustment = 2
+            labour_adjustment = 3.7
         super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, description=description, name=name)
 
 
@@ -366,7 +368,7 @@ class MattEmulsionPaint(EmulsionPaint):
         if unit is None:
             unit = 5
         if coverage is None:
-            coverage = 50
+            coverage = 17
 
         super().__init__(price, unit, coverage)
 
@@ -379,7 +381,7 @@ class SilkEmulsionPaint(EmulsionPaint):
         if unit is None:
             unit = 5
         if coverage is None:
-            coverage = 50
+            coverage = 17
 
         super().__init__(price, unit, coverage)
 
@@ -390,7 +392,7 @@ class DiamondMattEmulsion(EmulsionPaint):
         if unit is None:
             unit = 5
         if coverage is None:
-            coverage = 50
+            coverage = 17
         super().__init__(price, unit, coverage)
 
 class OilPaint(Paint):
@@ -404,7 +406,7 @@ class OilEggshell(OilPaint):
         if unit is None:
             unit = 2.5
         if coverage is None:
-            coverage = 25
+            coverage = 17
 
         super().__init__(price, unit, coverage)
 
@@ -417,7 +419,7 @@ class OilGloss(OilPaint):
         if unit is None:
             unit = 2.5
         if coverage is None:
-            coverage = 25
+            coverage = 17
 
         super().__init__(price, unit, coverage)
 
@@ -429,7 +431,7 @@ class OilSatin(OilPaint):
         if unit is None:
             unit = 2.5
         if coverage is None:
-            coverage = 25
+            coverage = 17
 
         super().__init__(price, unit, coverage)
 
@@ -460,10 +462,15 @@ class PaintingSurface:
         self.labour_price_msq = labour_price_msq
         assert isinstance(surface, Surface), 'Input needs to be a Surface object'
         assert isinstance(paint, Paint), 'Input needs to be a Paint object'
+        self.total_paint_coverage = self.get_total_paint_coverage()
+
+    def get_total_paint_coverage(self):
+        total_paint_coverage = int(self.paint.coverage * self.paint.unit)
+        return total_paint_coverage
 
     def get_units_of_paint(self):
         units_of_paint = (
-            (self.surface.area / (self.paint.coverage / self.surface.substrate.coverage_adjustment))
+            (self.surface.area / (self.total_paint_coverage / self.surface.substrate.coverage_adjustment))
             * self.surface.substrate.num_coats)
         return units_of_paint
 
@@ -484,10 +491,10 @@ class PaintingSurface:
         breakdown = dict(
             room_name=self.surface.room_name,
             surface_name=self.surface.name,
-            total_price=self.get_total_price(),
-            labour_price=self.get_labour_price(),
-            paint_price=self.get_paint_price(),
-            units_of_paint=self.get_units_of_paint(),
+            total_price=round(self.get_total_price(), 2),
+            labour_price=round(self.get_labour_price(), 2),
+            paint_price=round(self.get_paint_price(), 2),
+            units_of_paint=round(self.get_units_of_paint(), 2),
             surface_area=self.surface.area,
         )
         return breakdown
@@ -699,11 +706,12 @@ class OptimisedJob:
 
         final_summary_dict = dict(
             budget=self.budget,
-            total_budgeted_job_price=summary_dict_budgeted_job['total_price'],
-            total_surface_area_in_budget=summary_dict_budgeted_job['total_surface_area'],
-            unpainted_surface_area=
-            summary_dict_original_job['total_surface_area']-summary_dict_budgeted_job['total_surface_area'],
-            cost_for_remaining_items=summary_dict_original_job['total_price']-summary_dict_budgeted_job['total_price'],
+            total_budgeted_job_price=round(summary_dict_budgeted_job['total_price'], 2),
+            total_surface_area_in_budget=round(summary_dict_budgeted_job['total_surface_area'], 2),
+            unpainted_surface_area=round(
+            summary_dict_original_job['total_surface_area']-summary_dict_budgeted_job['total_surface_area'], 2),
+            cost_for_remaining_items=round(
+                summary_dict_original_job['total_price']-summary_dict_budgeted_job['total_price'], 2)
         )
         return final_summary_dict
 
