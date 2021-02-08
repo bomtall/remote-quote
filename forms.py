@@ -860,27 +860,44 @@ class InstructionsButton(widgets.HTML):
     def __init__(self):
         res = f'''
             Your RemoteQuote Instructions
-If RemoteQuote is left inactive in a browser for 15 minutes the server hosting it will go down. You will need to re-load
-RemoteQuote and start again. Unfortunately your quote will be lost. If you need to stop part way throguh you could
-estimate what you have so far and download the quote to save it. This information could then be re-entered.
+
 RemoteQuote is designed to provide price estimations of Painting & Decorating work to be undertaken by a professional.
-Estimates by a professional may vary and RemoteQuote should be used mainly as a guide and budgeting tool.
-Tools have been incorporated to aid budgeting and these can be used to prioritise and order your quote.
+Estimates by a professional may vary and RemoteQuote should be used mainly as a guide and budgeting tool. When tested
+RemoteQuote has been consistently within 25% accuracy levels and usually within 10% accuracy.
+
+If RemoteQuote is left inactive in a browser for 15 minutes, the server hosting it will go down. You will need to 
+re-load RemoteQuote and start again. Unfortunately your quote will be lost. If you need to stop part way through you 
+could estimate what you have so far and download the quote to save it. This information could then be re-entered.
+
+Tools have been incorporated to aid budgeting and these can be used to prioritise or 'optimise' your quote.
+There are three ways to optimise your quote if it exceeds a given budget. Using this feature will organise the work to 
+be undertaken within your budget for the priority you choose. Priorities include, painting the maximum surface area,
+painting the maximum surface area but only completing whole rooms and no partial rooms, and finally, optimising based7
+on the condition of surfaces, so that surface in the poorest condition are prioritised. These optimised quotes can be 
+downloaded. You can choose each option in the interface and download all three to compare.
+
 Prices for the paint finishes in this interface are taken from www.duluxdecoratingcentre.co.uk and include VAT.
 To use another paint, choose custom paint and input the required paint details price per unit, unit size, coverage.
-For smaller surfaces, input a smaller unit size. If you already have the paint, or have bought it for another surface
-input the price as 0. Paint needed is rounded up to whole unit sizes.
+For smaller surfaces, input a smaller unit size. 
+
+If you already have the paint for your project, choose custom paint and input the price as 0.
+
 Descriptive words for the condition of a surface substrate are defined as such:
 
-poor = Poor condition is where lots of preparation is required. Surfaces exhibit cracking, gaps not filled,
+'Poor' = Poor condition is where lots of preparation is required. Surfaces exhibit cracking, gaps not filled,
         previously poorly painted with drips, bits or flaking in the surface paint. Stains from oil or water may be 
         present. There may be joinings of the paper which is painted which requite sticking back. If any of the above
         or multiple faults then condition is poor
-okay = Okay condition is where there are some faults with the surface and a small amount of preparation is 
-        required, the surface may be marked and old but it sound, there may be a few fine cracks or small gaps to 
-        fill
-good = Good condition is where there is almost no preparation required, a light sand, limited fine cracks in
-         corners but otherwise a good smooth surface which you are happy with
+'Okay' = Okay condition is where there are some faults with the surface and a small amount of preparation is 
+        required, the surface may be marked and previously not painted very well but it is sound.
+        There may be some cracking and small areas of repair.
+'Good' = Good condition is where there is almost no preparation required, a light sand, limited fine cracks in
+         corners and scuffs but otherwise a good smooth surface which you are happy with.
+
+To estimate spindles do not attempt to calculate a surface area. Count the number of spindles and put this figure into
+RemoteQuote as the metres squared value. Count posts as 2.
+
+For all other areas, attempt to measure an accurate square meterage. ALways enter surface area values in square metres.
 
         '''
         # FILE

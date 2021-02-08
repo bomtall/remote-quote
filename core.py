@@ -185,11 +185,11 @@ class Spindle(Surface):
                 'input needs to be "Square", "Shaped", "Elaborate" or None'
 
         if labour_adjustment is None:
-            labour_adjustment = 2
+            labour_adjustment = 0.25
             if design == 'Shaped':
-                labour_adjustment = 2.1
+                labour_adjustment = 0.5
             elif design == 'Elaborate':
-                labour_adjustment = 2.2
+                labour_adjustment = 0.75
 
         super().__init__(*args, **kwargs, labour_adjustment=labour_adjustment, design=design,
                          design_options=design_options, description=description, name=name)
