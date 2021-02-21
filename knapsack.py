@@ -1,3 +1,5 @@
+# 0/1 Knapsack optimisation algorithm implemented using Python.
+
 def optimal_knapsack(capacity, values, costs):
 
     # adding 0th column to values/costs on the y axis

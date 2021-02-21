@@ -50,7 +50,7 @@ OPTIMISATION_TYPE_TO_OPTIMISER = {
     'Max rooms by surface area': core.Job.get_optimised_rooms_job,
     'Max rooms by condition and surface area': core.Job.get_optimised_condition_job,
 }
-
+# Dictionary of HTML paragraphs used in the GUI
 HTML_PARAGRAPH_DICT = {
     'heading_paragraph':'''Create your own quotation for Painting & Decorating and optimise the quote for your budget.
                             <br>                     
@@ -72,7 +72,7 @@ HTML_PARAGRAPH_DICT = {
 
 }
 
-
+# Dictionary of tooltips text for the blank info button widgets in the GUI
 TOOLTIPS_DICT ={
     'surface_tip': 'To measure the surface area of multiple surfaces which are the same type, for example walls or'
                    ' skirting board, measure the height once and multiply by the distance around the room.',
@@ -93,19 +93,23 @@ TOOLTIPS_DICT ={
 # ----------------------------------------------------------------------------------------------------------------------
 # --------------------------------------------------- Surface widgets  -------------------------------------------------
 # Widgets to take inputs area, surface, design and num_panes from user
+
+# Information button for the surface section of the GUI with no on click actions, just to provide info
 class SurfaceInfoButton(widgets.Button):
     def __init__(self):
         super().__init__(
             description='Surface Info',
             disabled=False,
             button_style='',
+            # selecting the tooltip text from the dictionary
             tooltip=TOOLTIPS_DICT['surface_tip'],
+            # adding a light bulb icon onto the button visible to the user in the GUI
             icon='fa-lightbulb-o',
         )
-
+        # setting the button colour to light blue
         self.style.button_color = 'lightblue'
 
-
+# class inheriting from a widget float text box and being implemented to allow user input of surface area
 class AreaInput(widgets.BoundedFloatText):
     def __init__(self):
         super().__init__(
@@ -113,23 +117,29 @@ class AreaInput(widgets.BoundedFloatText):
             min=0,
             max=1000.0,
             step=1.0,
+            # setting the description property to 'msq' to inform the user of the units I want the measurment in
             description='msq:',
             disabled=False,
         )
 
-
+# class inheriting from ipywidget dropdown and allowing user to select the surface type surface subclass
 class SurfaceSelector(widgets.Dropdown):
     def __init__(self):
+        # setting the surface-type to surface class dict as a property to be able to access the appropriate class from
+        # the user selection which will be the name of the class but in a string, to allow instantiation from GUI inputs
         self.surface_type_to_class_dict = SURFACE_TYPE_TO_CLASS_DICT
+        # setting the default surface class string to be used by the widget, selecting the 0th key from the dictionary
         self.default = list(SURFACE_TYPE_TO_CLASS_DICT.keys())[0]
 
         super().__init__(
+            # using the class dictionary keys to fill in the options list for the widget
             options=list(self.surface_type_to_class_dict.keys()),
+            # setting the default key as the default value for the widget
             value=self.default,
             description='Surface:',
             disabled=False,
         )
-
+    # Function to use the surface class dictionary to convert user string selection into the class the string represents
     def get_surface_class_from_value(self):
         if self.value in self.surface_type_to_class_dict.keys():
             dict_key = self.value
@@ -138,28 +148,35 @@ class SurfaceSelector(widgets.Dropdown):
         surface = self.surface_type_to_class_dict[dict_key]
         return surface
 
-
+# class inheriting from ipywidget dropdown to provide user with ability to select the design property of a surface type
 class DesignSelector(widgets.Dropdown):
     def __init__(self):
+        # using the same string to class dictionary structure as in previous class setting the dict as property
         self.surface_type_to_class_dict = SURFACE_TYPE_TO_CLASS_DICT
 
         super().__init__(
+            # because the design property is not needed and is different for every surface type and is not needed for
+            # the default surface type the options list and value property is an empty string by default
             options=[''],
             value='',
             description='Design:',
             disabled=False,
         )
 
+    # function to toggle widget visibility depending on whether design options are needed for the current surface type
     def get_design_options(self, surface_type):
+        # selecting the correct set of options
         design_options = self.surface_type_to_class_dict[surface_type](10).design_options
+        # if design options are none for the surface type currently in the surface type widget then the widget is hidden
         if design_options is None:
             self.options = ['']
             self.layout.visibility = 'hidden'
+            # if surface type has design options then they are set as property of the class and the widget is visible
         else:
             self.layout.visibility = 'visible'
             self.options = design_options
 
-
+# only windows and cutting in doors need this widget class which inherits the ipywidget boundinttext
 class NumPanesSelector(widgets.BoundedIntText):
     def __init__(self):
         self.surface_type_to_class_dict = SURFACE_TYPE_TO_CLASS_DICT
@@ -172,14 +189,14 @@ class NumPanesSelector(widgets.BoundedIntText):
             description='# Panes:',
             disabled=False,
         )
-
+# function to toggle visibility of num panes widget based on surface type and design
     def display_num_panes(self, surface_type, design_type):
         num_panes = self.surface_type_to_class_dict[surface_type](10, design=design_type).num_panes
         if (num_panes is None) or (num_panes == 0):
             self.layout.visibility = 'hidden'
         else:
             self.layout.visibility = 'visible'
-
+    # funtion to return number of panes of glass. If widget is hidden None is returned
     def get_num_panes_value(self):
         if self.layout.visibility == 'hidden':
             return None
@@ -188,22 +205,25 @@ class NumPanesSelector(widgets.BoundedIntText):
 
 
 # ----------------------------------------------- Surface form ---------------------------------------------------------
-# Widget to combine widgets for area, surface, design and num panes
+
+# Widget class inheriting from an ipywidgets vertical box to contain widgets for area, surface, design and num panes
 class SurfaceForm(widgets.VBox):
     def __init__(self):
-        #self.html_paragraph_dict = HTML_PARAGRAPH_DICT
+        # setting some HTML widgets to properties of surface from class to help format the surface section
         self.surface_heading = widgets.HTML(
             '<h2 style="font-family:georgia;background-color:#EDF9F4; color:#4FAD99">Surface Inputs</h2>')
         self.surface_paragraph = widgets.HTML(
             f'<p style="font-family:georgia; background-color:#EDF9F4; color:#4FAD99">'
             f'{HTML_PARAGRAPH_DICT["surface_paragraph_string"]}</p>')
+        # setting an instantiation of the widgets to be contained
+        # in the surface form as properties of this class for easy access
         self.surface_info = SurfaceInfoButton()
         self.area_input = AreaInput()
         self.surface_selector = SurfaceSelector()
         self.design_selector = DesignSelector()
         self.num_panes_selector = NumPanesSelector()
 
-
+        # dictionary of widgets for easy accessing
         self.widget_dict = {
             'surface_heading': self.surface_heading,
             'surface_paragraph': self.surface_paragraph,
@@ -217,15 +237,19 @@ class SurfaceForm(widgets.VBox):
 
         super().__init__(list(self.widget_dict.values()))
 
+        # using the observe method to watch the surface type selection widgets and call a method to change design
+        # options and visibilty based on the change of the surface selector widget
         self.surface_selector.observe(self.toggle_design_options, 'value')
+        # using the observe widget method to watch the designs for a change and call a function to toggle num panes
         self.design_selector.observe(self.toggle_num_panes_design, 'value')
+        # using the observe method to watch the surface selector again but change number of panes selector visibility
         self.surface_selector.observe(self.toggle_num_panes_surface, 'value')
 
-        # Run the observe functions to set up design options and number of panes whose default settings
+        # call the observe functions to set up design options and number of panes whose default settings
         # depend on surface type
         self.design_selector.get_design_options(self.surface_selector.value)
         self.num_panes_selector.display_num_panes(self.surface_selector.value, self.design_selector.value)
-
+    # functions called for each of the observe methods used
     def toggle_num_panes_design(self, change):
         self.num_panes_selector.display_num_panes(self.surface_selector.value, change['new'])
 
@@ -239,21 +263,26 @@ class SurfaceForm(widgets.VBox):
 # ----------------------------------------------------------------------------------------------------------------------
 #  ----------------------------------------------- Substrate widgets  --------------------------------------------------
 # Widgets for substrate, condition, num coats and coverage adjustment
+
+# info button widget with no on click functionality but providing extra text description for user in the GUI
 class SubstrateInfoButton(widgets.Button):
     def __init__(self):
         super().__init__(
             description='Substrate Info',
             disabled=False,
             button_style='',
+            # selecting the correct tooltip text from the tooltip dictionary for the tooltip property
             tooltip=TOOLTIPS_DICT['substrate_tip'],
+            # setting a lightbulb font awesome icon to appear on the widget
             icon='fa-lightbulb-o',
         )
-
+        # setting the button colour to light blue
         self.style.button_color = 'lightblue'
 
-
+# widget class inheriting from ipywidgets toggle buttons to use as substrate selection for the user
 class InputSubstrate(widgets.ToggleButtons):
     def __init__(self):
+        # using the keys of the string to class dict for substrate to set the options list
         options_list = list(SUBSTRATE_INPUT_TO_SUBSTRATE_CLASS_DICT.keys())
 
         super().__init__(
@@ -267,17 +296,18 @@ class InputSubstrate(widgets.ToggleButtons):
             value=options_list[0],
         )
 
-
+# condition selection widget class inheriting from ipywidget dropdown class
 class InputCondition(widgets.Dropdown):
     def __init__(self):
         super().__init__(
+            # setting the options property using condition options dictionary in core file
             options=core.CONDITION_OPTIONS,
             value=core.CONDITION_OPTIONS[0],
             description='Condition:',
             disabled=False,
         )
 
-
+# input number of coats class inheriting from bound int widget
 class InputNumCoats(widgets.BoundedIntText):
     def __init__(self):
         super().__init__(
@@ -289,7 +319,7 @@ class InputNumCoats(widgets.BoundedIntText):
             disabled=True,
         )
 
-
+# input coverage adjustment class inheriting from ipywidget bounded float text class
 class InputCoverageAdjustment(widgets.BoundedFloatText):
     def __init__(self):
         super().__init__(
@@ -301,42 +331,47 @@ class InputCoverageAdjustment(widgets.BoundedFloatText):
             disabled=True,
         )
 
-
+# input substrate details class inheriting from ipywidget accordion class and containing substrate details classes
 class InputSubstrateDetails(widgets.Accordion):
     def __init__(self):
+        # setting the classes/widgets to be contained as properties
         self.input_num_coats = InputNumCoats()
         self.input_coverage_adjustment = InputCoverageAdjustment()
         self.substrate_input_to_substrate_class_dict = SUBSTRATE_INPUT_TO_SUBSTRATE_CLASS_DICT
+        # adding them to a dictionary
         self.widget_dict = {
             'input_num_coats': self.input_num_coats,
             'input_coverage_adjustment': self.input_coverage_adjustment,
         }
-
+        # setting the widgets to be contained as children of the accordion widget using the dictionary of widgets
         super().__init__(
             children=[widgets.HBox(list(self.widget_dict.values()))],
             selected_index=None)
-
+    # setting the title of the accordion
         self.set_title(0, "Substrate Details...")
-
+    # function disabling the default values so they cannot be changed unless user chooses to input a custom substrate
     def toggle_substrate_details(self, substrate_type, condition):
         if substrate_type != 'Custom Substrate':
             disabled = True
         else:
             disabled = False
-
+        # defaulting as disabled because as default there will be a substrate selected not custom substrate
         self.input_num_coats.disabled = disabled
         self.input_coverage_adjustment.disabled = disabled
-
+        # using the dictionary to get the class from the string widget option
         substrate = self.substrate_input_to_substrate_class_dict[substrate_type](condition=condition)
         self.input_num_coats.value = substrate.num_coats
         self.input_coverage_adjustment.value = substrate.coverage_adjustment
 
 
 # --------------------------------------------- Substrate form ---------------------------------------------------------
-# Substrate form to combine widgets for substrate type, condition, num coats and coverage adjustment
-# to create Substrate class
+# Substrate form to combine and contain widgets for substrate type, condition, num coats and coverage adjustment
+# used to instantiate Substrate classes in the GUI
+
+# subsrate form class inheriting from ipywidget vertical box to organise and access the widgets contained
 class SubstrateForm(widgets.VBox):
     def __init__(self):
+        # HTML widget text for a heading and description of the substrate section of the GUI
         self.substrate_heading = widgets.HTML(
             '<h2 style="font-family:georgia;background-color:#EDF9F4; color:#4FAD99">Substrate Inputs</h2>')
         self.substrate_paragraph = widgets.HTML(
@@ -347,6 +382,8 @@ class SubstrateForm(widgets.VBox):
         self.input_condition = InputCondition()
         self.input_substrate_details = InputSubstrateDetails()
         self.substrate_input_to_substrate_class_dict = SUBSTRATE_INPUT_TO_SUBSTRATE_CLASS_DICT
+
+        # dictionary of widgets contained in the substrate form class
         self.widget_list_dict = {
             'substrate_heading': self.substrate_heading,
             'substrate_paragraphself': self.substrate_paragraph,
@@ -356,7 +393,7 @@ class SubstrateForm(widgets.VBox):
             'input_substrate_details': self.input_substrate_details,
 
             }
-
+    # using observe method to toggle substrate details depending on the substrate and condition the user selects
         self.input_condition.observe(self.toggle_substrate_details_on_condition, 'value')
         self.input_substrate.observe(self.toggle_substrate_details_on_substrate, 'value')
 
@@ -365,6 +402,7 @@ class SubstrateForm(widgets.VBox):
         # Run the observe functions to set up substrate details whose default settings depend on surface type
         self.input_substrate_details.toggle_substrate_details(self.input_substrate.value, self.input_condition.value)
 
+# functions called by the observe method to change the values displayed in the substrate details accordion
     def toggle_substrate_details_on_condition(self, change):
         self.input_substrate_details.toggle_substrate_details(self.input_substrate.value, change['new'])
 
@@ -374,22 +412,27 @@ class SubstrateForm(widgets.VBox):
 
 # ----------------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------- Paint widgets --------------------------------------------------------
+
 # Widgets for paint type, finish and paint details (price, unit, coverage)
+
+# paint info button class inheriting from ipywidget button class to display info to user via tooltip
 class PaintInfoButton(widgets.Button):
     def __init__(self):
         super().__init__(
             description='Paint Info',
             disabled=False,
             button_style='',
+            #selecting the correct tooltip from tooltip dictionary
             tooltip=TOOLTIPS_DICT['paint_tip'],
             icon='fa-lightbulb-o',
         )
 
         self.style.button_color = 'lightblue'
 
-
+# paint type buttons class inheriting from ipywidget toggle button class
 class PaintTypeButtons(widgets.ToggleButtons):
     def __init__(self):
+        # selecting the string keys for the options list from the paint type to finish options dictionary
         options = list(PAINT_TYPE_TO_FINISH_OPTIONS_DICT.keys())
         super().__init__(
             options=options,
@@ -400,12 +443,12 @@ class PaintTypeButtons(widgets.ToggleButtons):
             value=options[0],
         )
 
-
+# finish choices class inheriting from ipywidgets dropdown menu class
 class FinishChoices(widgets.Dropdown):
     def __init__(self):
         self.paint_finish_type_to_paint_class_dict = PAINT_FINISH_TYPE_TO_PAINT_CLASS_DICT
         self.paint_type_to_finish_options_dict = PAINT_TYPE_TO_FINISH_OPTIONS_DICT
-
+# setting the defaults
         default_paint_type = PaintTypeButtons().value
         default_options = self.paint_type_to_finish_options_dict[default_paint_type]
         default_finish = default_options[0]
@@ -418,6 +461,8 @@ class FinishChoices(widgets.Dropdown):
             disabled=False,
         )
 
+    # function which is called from an observe method to change the available paint
+    # finish options based on the paint type widget value
     def toggle_finish_options(self, paint_type):
         options = self.paint_type_to_finish_options_dict[paint_type]
 
@@ -428,6 +473,7 @@ class FinishChoices(widgets.Dropdown):
             self.options = self.paint_type_to_finish_options_dict[paint_type]
             self.value = self.paint_type_to_finish_options_dict[paint_type][0]
 
+# retrieving the class using the string option from dictionary of paint classes
     def get_paint_class_from_value(self):
         if self.value in self.paint_finish_type_to_paint_class_dict.keys():
             dict_key = self.value
@@ -436,9 +482,10 @@ class FinishChoices(widgets.Dropdown):
         paint = self.paint_finish_type_to_paint_class_dict[dict_key]
         return paint
 
-
+# paint details input class inheriting from ipywidgets accordion class
 class PaintDetailsInputBox(widgets.Accordion):
     def __init__(self):
+        # adding the widgets to be contained within the accordion as properties
         self.paint_price_input = PaintPriceInput()
         self.paint_unit_input = PaintUnitInput()
         self.paint_coverage_input = PaintCoverageInput()
@@ -451,7 +498,7 @@ class PaintDetailsInputBox(widgets.Accordion):
 
         self.paint_finish_type_to_paint_class_dict = PAINT_FINISH_TYPE_TO_PAINT_CLASS_DICT
         self.set_title(0, 'Paint Details...')
-
+    # method called from an observe to enable the paint input values if the user wants to input a custom paint
     def toggle_paint_inputs(self, paint_type):
         if paint_type == 'Custom Input':
             disabled = False
@@ -461,7 +508,8 @@ class PaintDetailsInputBox(widgets.Accordion):
         self.paint_price_input.disabled = disabled
         self.paint_unit_input.disabled = disabled
         self.paint_coverage_input.disabled = disabled
-
+# method called from an observe to change the values displayed in the paint details widgets to display the
+    # corresponding values for the currently selected paint
     def toggle_paint_values(self, paint_finish, paint_type):
         if paint_type != 'Custom Input':
             paint = self.paint_finish_type_to_paint_class_dict[paint_finish]()
@@ -469,7 +517,7 @@ class PaintDetailsInputBox(widgets.Accordion):
             self.paint_unit_input.value = paint.unit
             self.paint_coverage_input.value = paint.coverage
 
-
+# price input class inheriting from ipywidget bound float text box
 class PaintPriceInput(widgets.BoundedFloatText):
     def __init__(self):
         super().__init__(
@@ -481,7 +529,7 @@ class PaintPriceInput(widgets.BoundedFloatText):
             disabled=True,
         )
 
-
+# unit input class inheriting from ipywidget bound float text box
 class PaintUnitInput(widgets.BoundedFloatText):
     def __init__(self):
         super().__init__(
@@ -493,7 +541,7 @@ class PaintUnitInput(widgets.BoundedFloatText):
             disabled=True,
             )
 
-
+# coverage input class inheriting from ipywidget bound float text box
 class PaintCoverageInput(widgets.BoundedFloatText):
     def __init__(self):
         super().__init__(
@@ -507,9 +555,13 @@ class PaintCoverageInput(widgets.BoundedFloatText):
 
 
 # ----------------------------------------------- Paint form -----------------------------------------------------------
-# Paint form combining widgets for paint type, paint finish, paint inputs (price, unit, coverage) to make Paint class
+# Paint form combining widgets for paint type, paint finish, paint inputs (price, unit, coverage)
+# used to instantiate Paint classes within GUI
+
+# paint form class inheriting from an ipywidget vertical box class
 class PaintForm(widgets.VBox):
     def __init__(self):
+        # html heading and paragraph for the paint section of the GUI
         self.paint_heading = widgets.HTML('<h2 style="font-family:georgia;background-color:#EDF9F4;'
                                           ' color:#4FAD99">Paint Inputs</h2>')
         self.paint_paragraph = widgets.HTML('<p style="font-family:georgia; background-color:#EDF9F4;'
@@ -528,7 +580,7 @@ class PaintForm(widgets.VBox):
         }
 
         super().__init__(list(self.widget_dict.values()))
-
+# observe methods being used to create visible changes between the paint widgets as paint type or finish is changed
         self.paint_type_buttons.observe(self.toggle_finish_visibility, 'value')
         self.paint_type_buttons.observe(self.toggle_paint_inputs, 'value')
         self.paint_type_buttons.observe(self.toggle_paint_values_on_paint_type, 'value')
@@ -539,7 +591,7 @@ class PaintForm(widgets.VBox):
         self.paint_finish_dropdown.toggle_finish_options(self.paint_type_buttons.value)
         self.paint_inputs_box.toggle_paint_inputs(self.paint_type_buttons.value)
         self.paint_inputs_box.toggle_paint_values(self.paint_finish_dropdown.value, self.paint_type_buttons.value)
-
+# funtions called by the observe methods above
     def toggle_finish_visibility(self, change):
         self.paint_finish_dropdown.toggle_finish_options(change['new'])
 
@@ -555,7 +607,7 @@ class PaintForm(widgets.VBox):
 
 # ----------------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------- Surface box -----------------------------------------------------------
-# Combines widgets for surface, substrate and paint inputs to put into the tabular structure
+# Combines form widgets for surface, substrate and paint inputs to put into the tabular structure
 class SurfaceBox(widgets.VBox):
     def __init__(self):
         self.surface_form = SurfaceForm()
@@ -573,6 +625,8 @@ class SurfaceBox(widgets.VBox):
 # ----------------------------------------------------------------------------------------------------------------------
 # -------------------------------------------- Calculation widgets------------------------------------------------------
 # Widgets for calculation box (estimate, optimise, budget input, download)
+
+# estimate button class inheriting from ipywidget button to trigger the calculation
 class EstimateButton(widgets.Button):
     def __init__(self):
         super().__init__(
@@ -582,10 +636,10 @@ class EstimateButton(widgets.Button):
             tooltip='Calculate',
             icon='check',
         )
-
+# setting the estimate job - calculate button colour to palegreen
         self.style.button_color = 'palegreen'
 
-
+# budget input class inheriting from ipywidget bounded int text box allowing users to input budget for optimisation
 class BudgetInput(widgets.BoundedIntText):
     def __init__(self):
         super().__init__(
@@ -597,7 +651,7 @@ class BudgetInput(widgets.BoundedIntText):
             disabled=False,
         )
 
-
+# optimise dropdown class inheriting from ipywidget dropdown widget class to select different optimisation priorities
 class OptimiseDropdown(widgets.Dropdown):
     def __init__(self):
         self.optimisation_type_to_optimiser = OPTIMISATION_TYPE_TO_OPTIMISER
@@ -608,7 +662,7 @@ class OptimiseDropdown(widgets.Dropdown):
             disabled=True,
         )
 
-
+# optimise button class inheriting from ipywidget button class to trigger the optimisation of the job created by the GUI
 class OptimiseButton(widgets.Button):
     def __init__(self):
         super().__init__(
@@ -652,13 +706,16 @@ class CalculateBox(widgets.VBox):
 # ------------------------------------------------ Remote Quote Form ---------------------------------------------------
 # Remote quote form combining the widget containing the tabular structure of rooms and surfaces together with the
 # calculation box and outputs
+
+# remote quote form class inheriting from ipywidget vertical box
 class RemoteQuoteForm(widgets.VBox):
     def __init__(self, form_widgets_dict):
 
+# adding the tab structure of dictionaries as properies of remote quote form so everything can be accessed in this class
         self.form_widgets_dict = form_widgets_dict
         self.form_widgets_dict['dropdown_num_rooms'].observe(tab_structure.on_change_num_rooms)
         self.form_widgets_dict['dropdown_num_rooms'].observe(self.freeze_room_dropdown)
-
+# adding all of the grouped widget classes as properties of this class
         self.calculate_box = CalculateBox()
         self.calculate_box.estimate_button.on_click(self.get_estimate)
         self.calculate_box.optimise_button.on_click(self.get_optimised_job)
@@ -667,9 +724,11 @@ class RemoteQuoteForm(widgets.VBox):
                           self.calculate_box])
         self.job = core.Job([])
 
+# function to freeze the room dropdown once a number of rooms is selected this is to stop accidental resetting of form
     def freeze_room_dropdown(self, change):
         self.form_widgets_dict['dropdown_num_rooms'].disabled = True
 
+# function to create the downloadable breakdown text file using an f string and to create the button for the user
     def get_download(self):
         res = f'''
             Your RemoteQuote
@@ -701,6 +760,12 @@ class RemoteQuoteForm(widgets.VBox):
         html_button = html_buttons.format(payload=payload, filename=filename)
         self.calculate_box.download_output.value = html_button
 
+# function called when the optimise job button is clicked which looks at the value in the optimise dropdown to find
+    # what type of optimisation the user wants then selects the correct function from the dictionary of optimisation
+    # functions and passes in the budget input widget value along with the instantiation of the job class created by
+    # the estimate button on click. This funtion also then sets up the download button and download document,
+    # calling the summary funtions of the optimised job class from within an f string so that the results can be
+    # downloaded in a text file.
     def get_optimised_job(self, change):
         optimise_function = self.calculate_box.optimise_dropdown.optimisation_type_to_optimiser[
             self.calculate_box.optimise_dropdown.value]
@@ -739,6 +804,10 @@ class RemoteQuoteForm(widgets.VBox):
         html_button = html_buttons.format(payload=payload, filename=filename)
         self.calculate_box.optimised_download_output.value = html_button
 
+# on click function of the estimate button to provide price output in the GUI, calls the funtion get job to instantiate
+    # a job with the values from all of the widgets created in the GUI
+    # This funtion needs to except the error that is caused by the user trying to estimate a job which has rooms where
+    # the user has not selected the number of surfaces in the dropdown
     def get_estimate(self, change):
         try:
             self.job = self.get_job()
@@ -754,7 +823,8 @@ class RemoteQuoteForm(widgets.VBox):
                 self.calculate_box.output.value = 'Rooms with unselected surfaces. Please select.'
             else:
                 raise
-
+# function to instantiate job with the values held in the widgets in the GUI
+# a chain of functions is set in motion to get the rooms, get the painting surfaces, get the surfaces and get the paint
     def get_job(self):
         room_list = []
         num_rooms = self.form_widgets_dict['dropdown_num_rooms'].value
@@ -765,6 +835,7 @@ class RemoteQuoteForm(widgets.VBox):
         job = core.Job(room_list)
         return job
 
+# function to instantiate rooms from the values held in the GUI
     def get_room(self, room_dict):
         painting_surface_list = []
         room_name = room_dict['room_title'].value
@@ -777,6 +848,7 @@ class RemoteQuoteForm(widgets.VBox):
         room = core.Room(painting_surface_list, name=room_name)
         return room
 
+# Function to instantiate painting surfaces using the values held in the widgets of the GUI
     def get_painting_surface(self, surface_dict):
         surface_name = surface_dict['surface_title'].value
         surface_form = surface_dict['surface_box'].surface_form
@@ -788,6 +860,7 @@ class RemoteQuoteForm(widgets.VBox):
         surface.name = surface.name + surface_name
         return core.PaintingSurface(surface, paint)
 
+# Function to instantiate surfaces using the values held in the widgets in the GUI
     def get_surface(self, surface_form, substrate_form):
         surface_area = surface_form.area_input.value
         surface = surface_form.surface_selector.get_surface_class_from_value()
@@ -796,6 +869,8 @@ class RemoteQuoteForm(widgets.VBox):
         substrate = self.get_substrate(substrate_form)
         return surface(surface_area, design=design, num_panes=num_panes, substrate=substrate)
 
+# Function to instantiate substrate using the values held in the substrate widgets and return a substrate class
+    # to be used as a property of the corresponding surface class created on the same form
     @staticmethod
     def get_substrate(substrate_form):
         substrate_type = substrate_form.input_substrate.value
@@ -808,6 +883,7 @@ class RemoteQuoteForm(widgets.VBox):
                 condition=substrate_form.input_condition.value)
         return substrate
 
+# method to get the values from the paint widgets and instantiate each paint needed
     @staticmethod
     def get_paint(paint_form):
         paint_price = paint_form.paint_inputs_box.paint_price_input.value
@@ -819,10 +895,6 @@ class RemoteQuoteForm(widgets.VBox):
         else:
             paint = paint_class()
         return paint
-
-# ----------------------------------------------------------------------------------------------------------------------
-# -------------------------------------- Other widgets required for Final GUI ------------------------------------------
-
 
 # ----------------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------- GUI HTML Heading & Paragraph ------------------------------------------
@@ -841,6 +913,7 @@ class GUIInstructionParagraph(widgets.HTML):
 
 # ----------------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------- Refresh button --------------------------------------------------------
+# refresh button class added to allow users to start the form again inherits from ipywidget button
 class RefreshButton(widgets.Button):
     def __init__(self):
         super().__init__(
@@ -856,6 +929,8 @@ class RefreshButton(widgets.Button):
 
 # ----------------------------------------------------------------------------------------------------------------------
 # ---------------------------------------------- Instructions button ---------------------------------------------------
+
+#instructionsbutton class inherits from widgets.html, creates a button for the user and a text file they can download
 class InstructionsButton(widgets.HTML):
     def __init__(self):
         res = f'''
@@ -936,6 +1011,7 @@ class GuiInterface(widgets.VBox):
         super().__init__([self.heading, self.paragraph, widgets.HBox([self.refresh_button, self.instructions]),
                           self.form])
 
+    #funtion called when the refresh button is clicked which restarts the form.
     def reset_form(self, change):
         tab_structure.form_widgets_dict = tab_structure.initialise_form_widgets()
         self.form = RemoteQuoteForm(tab_structure.form_widgets_dict)

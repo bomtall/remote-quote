@@ -10,6 +10,7 @@ import knapsack
 
     ],
 )
+# Testing the optimisation algorithm independently of my core code
 def test_optimal_knapsack(args, kwargs, expected):
     optimal_list = knapsack.optimal_knapsack(*args, **kwargs)
     assert optimal_list == expected

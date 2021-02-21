@@ -21,6 +21,7 @@ import paint_link
 
     ],
 )
+# Testing the instantiation of the surface class
 def test_surface_area(args, kwargs, expected):
     s = core.Surface(*args, **kwargs)
     assert s.area == expected
@@ -50,6 +51,7 @@ def test_surface_area(args, kwargs, expected):
         ([None, 2, None], dict(), AssertionError, 'Input either "area" or "length" and "width".'),
     ]
 )
+# Testing the Surface class validation
 def test_surface_error(args, kwargs, error_type, error_message):
     with pytest.raises(error_type) as e:
         core.Surface(*args, **kwargs)
@@ -90,6 +92,7 @@ def test_surface_error(args, kwargs, error_type, error_message):
 
     ]
 )
+# Testing the labour adjustment and design values for surface sub classes and testing surface class defaults
 def test_labour_adjustment_and_design(args, kwargs, surface_class, expected, expected_design):
     s = surface_class(*args, **kwargs)
     assert s.labour_adjustment == pytest.approx(expected, 0.01)
@@ -105,28 +108,10 @@ def test_labour_adjustment_and_design(args, kwargs, surface_class, expected, exp
 
     ],
 )
+# Testing the instantiation of the surface class with substrate as a property
 def test_surface_substrate(args, kwargs, expected):
     s = core.Surface(*args, **kwargs)
     assert isinstance(s.substrate, expected)
-
-
-
-@pytest.mark.parametrize(
-    'args, kwargs, expected',
-    [
-        # Testing design property in surface
-        ([1], dict(design='panelled'), 'panelled'),
-
-
-    ],
-)
-def test_surface_design(args, kwargs, expected):
-    s = core.Surface(*args, **kwargs)
-    assert s.design == expected
-
-
-
-# TODO write tests for wall and ceiling(done)
 
 @pytest.mark.parametrize(
     'args, kwargs, expected',
@@ -143,6 +128,7 @@ def test_surface_design(args, kwargs, expected):
         ([None, 2], {'width' : 2}, 4),
     ],
 )
+# Testing the wall surface sub-class instantiation with area arguments
 def test_wall(args, kwargs, expected):
     w = core.Wall(*args, **kwargs)
     assert w.area == expected
@@ -163,7 +149,7 @@ def test_wall(args, kwargs, expected):
         ([None, 2], {'width' : 2}, 4),
     ],
 )
-
+# Testing the ceiling surface sub-class instantiation with area arguments
 def test_ceiling(args, kwargs, expected):
     c = core.Ceiling(*args, **kwargs)
     assert c.area == expected
@@ -185,6 +171,7 @@ def test_ceiling(args, kwargs, expected):
         ([1], dict(design='Elaborate'), core.Spindle, 'Elaborate'),
     ],
 )
+# Testing the design property of the door class arguments and defaults
 def test_door_design(args, kwargs, surface_class, expected):
     s = surface_class(*args, **kwargs)
     assert s.design == expected
@@ -207,34 +194,12 @@ def test_door_design(args, kwargs, surface_class, expected):
         ([1], dict(num_panes='6'), core.Window, AssertionError, '"num_panes" needs to be an integer and >= 1'),
     ]
 )
+# Testing the assertion statements in surface subclasses
 def test_surface_subclass_validation_error(args, kwargs, surface_class, error_type, error_message):
 
     with pytest.raises(error_type) as e:
         surface_class(*args, **kwargs)
     assert e.value.args[0] == error_message
-
-
-
-    # TODO ADD IN TEST FOR VALIDATION OF NUMBER OF PANES IN WINDOW AND CUTTING IN DOOR
-
-@pytest.mark.parametrize(
-    'args, kwargs, expected',
-    [
-        #testing passing in list and dictionary
-        ([[core.Wall(10)]], dict(), 10),
-        ([[core.Wall(20), core.Wall(40)]], dict(), 60),
-        ([[core.Ceiling(10)]], dict(), 10),
-        ([[core.Wall(15), core.Ceiling(15)]], dict(), 30),
-        ([], {'surfaces' : [core.Wall(10), core.Ceiling(15)]}, 25),
-        ([[core.Wall(20), core.Ceiling(40), core.Wall(20), core.Wall(10), core.Wall(10), core.Ceiling(10),]],
-         dict(), 110)
-    ]
-)
-
-def test_get_total_surface_area(args, kwargs, expected):
-    sa = core.get_total_surface_area(*args, **kwargs)
-    assert sa == expected
-
 
 @pytest.mark.parametrize(
     'args, kwargs, expected',
@@ -246,6 +211,7 @@ def test_get_total_surface_area(args, kwargs, expected):
         ([1], dict(condition='good'), 1),
     ],
 )
+# Testing the instantiation of substrate with condition arguments gives the correct preparation factor value
 def test_substrate(args, kwargs, expected):
     s = core.Substrate(*args, **kwargs)
     assert s.preparation_factor == expected
@@ -262,6 +228,7 @@ def test_substrate(args, kwargs, expected):
         ([], dict(coverage_adjustment=0), AssertionError, 'Input needs to be numeric and > 0, or None'),
     ]
 )
+# Testing the assertion statements in the substrate class
 def test_substrate_error(args, kwargs, error_type, error_message):
     with pytest.raises(error_type) as e:
         core.Substrate(*args, **kwargs)
@@ -288,6 +255,8 @@ def test_substrate_error(args, kwargs, error_type, error_message):
 
     ],
 )
+# Testing the number of coats, preparation factor and coverage adjustment are all correct when instantiating substrate
+# subclasses with and without arguments
 def test_substrate_subclasses(args, kwargs, expected_prep_factor, expected_coats, expected_coverage):
     s = core.Surface(*args, **kwargs)
     assert s.substrate.preparation_factor == expected_prep_factor
@@ -308,6 +277,7 @@ def test_substrate_subclasses(args, kwargs, expected_prep_factor, expected_coats
 
     ]
 )
+# Test instantiation of the paint class
 def test_paint_class(args, kwargs, expected):
     properties = core.Paint(*args, **kwargs)
     assert properties.price == expected['price']
@@ -326,6 +296,7 @@ def test_paint_class(args, kwargs, expected):
         ([-1, 5, 17], dict(), AssertionError, 'Input "price" needs to be numeric and greater than or equal to zero.'),
     ]
 )
+# Testing the paint class assertion statements
 def test_paintclass_error(args, kwargs, error_type, error_message):
     with pytest.raises(error_type) as e:
         core.Paint(*args, **kwargs)
@@ -348,6 +319,7 @@ def test_paintclass_error(args, kwargs, error_type, error_message):
         ([], dict(price=20.00, unit=5, coverage=17), core.Paint, 20.00),
     ],
 )
+# Testing the correct price is assigned as default and when overwritten by an argument
 def test_paint_classes(args, kwargs, paint_class, expected):
     s = paint_class(*args, **kwargs)
     assert s.price == expected
@@ -369,6 +341,7 @@ def test_paint_classes(args, kwargs, paint_class, expected):
 
     ]
 )
+# Painting surface calculations tested
 def test_painting_surface_class(args, kwargs, expected):
     total = core.PaintingSurface(*args, **kwargs)
     assert total.get_total_price() == pytest.approx(expected, 0.01)
@@ -384,11 +357,14 @@ def test_painting_surface_class(args, kwargs, expected):
 
     ]
 )
+# Testing the assertions in the painting surface class
 def test_painting_surface_assertions(args, kwargs, error_type, error_message):
     with pytest.raises(error_type) as e:
         core.PaintingSurface(*args, **kwargs)
     assert e.value.args[0] == error_message
 
+
+# adding some instantiations of painting surfaces as global variables to use in tests
 
 room_test_painting_surface = core.PaintingSurface(core.Wall(8), core.Paint(30, 5, 17))
 room_test_painting_surface_2 = core.PaintingSurface(core.Wall(10), core.MattEmulsionPaint())
@@ -409,6 +385,7 @@ room_test_painting_surface_4 = core.PaintingSurface(core.Skirtingboard(1, substr
          [225.70, 32.9, 192.8])
     ],
 )
+# Testing instantiation of the room class and the total/paint/labour price functions with the global painting surfaces
 def test_room(args, kwargs, expected):
     total = core.Room(*args, **kwargs)
     assert total.get_total_price() == pytest.approx(expected[0], 0.01)
@@ -422,11 +399,13 @@ def test_room(args, kwargs, expected):
         ([[1, 2, 3, 4]], dict(), AssertionError, 'Input needs to be a list of painting surface objects'),
     ]
 )
+# Testing the assertion statement in the room class
 def test_room_assertion(args, kwargs, error_type, error_message):
     with pytest.raises(error_type) as e:
         core.Room(*args, **kwargs)
     assert e.value.args[0] == error_message
 
+# adding some instantiations of the room class as global variables to use for tests in this file
 
 room_1 = core.Room([room_test_painting_surface, room_test_painting_surface_2])
 room_2 = core.Room([room_test_painting_surface_3, room_test_painting_surface_4])
@@ -438,6 +417,7 @@ room_2 = core.Room([room_test_painting_surface_3, room_test_painting_surface_4])
 
     ],
 )
+# Testing the price calculations in the job class using the global room variables
 def test_job(args, kwargs, expected):
     total = core.Job(*args, **kwargs)
     assert total.get_total_price() == pytest.approx(expected[0], 0.01)
@@ -451,6 +431,7 @@ def test_job(args, kwargs, expected):
         ([[1, 2, 3, room_1]], dict(), AssertionError, 'Input needs to be a list of room objects'),
     ]
 )
+# Testing the assertion statements in the job class
 def test_job_assertion(args, kwargs, error_type, error_message):
     with pytest.raises(error_type) as e:
         core.Job(*args, **kwargs)
@@ -461,13 +442,14 @@ def test_job_assertion(args, kwargs, error_type, error_message):
     'args, kwargs, expected',
     [
         ([[room_test_painting_surface, room_test_painting_surface_2]], dict(), [
-            {'surface_name': 'Wall', 'room_name': 'my room', 'total_price': 31.62, 'labour_price': 28.8, 'paint_price': 2.82,
-             'units_of_paint': 0.09, 'surface_area': 8},
-            {'surface_name': 'Wall', 'room_name': 'my room', 'total_price': 40.46, 'labour_price': 36, 'paint_price': 4.46,
-             'units_of_paint': 0.12, 'surface_area': 10}]),
+            {'surface_name': 'Wall', 'room_name': 'my room', 'total_price': 31.62,
+             'labour_price': 28.8, 'paint_price': 2.82,'units_of_paint': 0.09, 'surface_area': 8},
+            {'surface_name': 'Wall', 'room_name': 'my room', 'total_price': 40.46,
+             'labour_price': 36, 'paint_price': 4.46, 'units_of_paint': 0.12, 'surface_area': 10}]),
 
     ],
 )
+# Testing the breakdown dictionary provided by the get breakdown function in the room class
 def test_room_breakdown(args, kwargs, expected):
     room = core.Room(*args, **kwargs)
     breakdown = room.get_breakdown()
@@ -479,14 +461,19 @@ def test_room_breakdown(args, kwargs, expected):
     'args, kwargs, expected',
     [
         ([[room_1, room_1]], dict(), [
-            [{'surface_name': 'Wall', 'room_name': 'my room', 'total_price': 31.62, 'labour_price': 28.8, 'paint_price': 2.82, 'units_of_paint': 0.09, 'surface_area': 8},
-            {'surface_name': 'Wall', 'room_name': 'my room','total_price': 40.46, 'labour_price': 36, 'paint_price': 4.46, 'units_of_paint': 0.12, 'surface_area': 10}],
-            [{'surface_name': 'Wall', 'room_name': 'my room', 'total_price': 31.62, 'labour_price': 28.8, 'paint_price': 2.82, 'units_of_paint': 0.09, 'surface_area': 8},
-            {'surface_name': 'Wall', 'room_name': 'my room','total_price': 40.46, 'labour_price': 36, 'paint_price': 4.46, 'units_of_paint': 0.12, 'surface_area': 10}]]),
+            [{'surface_name': 'Wall', 'room_name': 'my room', 'total_price': 31.62,
+              'labour_price': 28.8, 'paint_price': 2.82, 'units_of_paint': 0.09, 'surface_area': 8},
+            {'surface_name': 'Wall', 'room_name': 'my room','total_price': 40.46, 'labour_price': 36,
+             'paint_price': 4.46, 'units_of_paint': 0.12, 'surface_area': 10}],
+            [{'surface_name': 'Wall', 'room_name': 'my room', 'total_price': 31.62, 'labour_price': 28.8,
+              'paint_price': 2.82, 'units_of_paint': 0.09, 'surface_area': 8},
+            {'surface_name': 'Wall', 'room_name': 'my room','total_price': 40.46, 'labour_price': 36,
+             'paint_price': 4.46, 'units_of_paint': 0.12, 'surface_area': 10}]]),
 
 
     ],
 )
+# Testing the breakdown function in the job class gives the same dictionary as expected
 def test_job_breakdown(args, kwargs, expected):
     job = core.Job(*args, **kwargs)
     breakdown = job.get_breakdown()
@@ -497,11 +484,12 @@ job_1 = core.Job([room_1, room_2])
 @pytest.mark.parametrize(
     'job, expected',
     [
-        #total prices surface1=62 surface2=77.87 surface3=210.03 surface4=40.87 approx 8 10 20 1
+
         (job_1, [room_test_painting_surface_4, room_test_painting_surface, room_test_painting_surface_2,
                  room_test_painting_surface_3])
     ],
 )
+# Testing the function which get the lists needed for the optimisation in the job class
 def test_get_painting_surface_list(job, expected):
     surface_list = job.get_painting_surface_list()
     assert surface_list == expected
@@ -509,12 +497,12 @@ def test_get_painting_surface_list(job, expected):
 @pytest.mark.parametrize(
     'surface_list, expected_values, expected_costs',
     [
-        # total prices surface1=62 surface2=77.87 surface3=210.03 surface4=40.87 approx
-        # areas of surfaces 1,2,3,4 respectively 8 10 20 1
+
         (job_1.get_painting_surface_list(), [1, 8, 10, 20], [22, 32, 41, 173])
 
     ],
 )
+# Testing the area costs lists are prepared correctly in ascending order
 def test_get_area_cost_lists(surface_list, expected_values, expected_costs):
     values, costs = core.Job.get_area_cost_lists(surface_list)
     assert values == expected_values
@@ -529,6 +517,7 @@ def test_get_area_cost_lists(surface_list, expected_values, expected_costs):
 
     ],
 )
+# Testing the optimisation of a job
 def test_get_optimised_job(job, budget, expected_budgeted_list):
     optimised_job = job.get_optimised_job(budget)
     assert optimised_job.budgeted_painting_surface_list == expected_budgeted_list
@@ -547,6 +536,7 @@ def test_get_optimised_job(job, budget, expected_budgeted_list):
 
     ],
 )
+# Testing the summary dictionary function from the optimised job class
 def test_get_summary(optimised_job, expected_summary_dict):
     summary = optimised_job.get_summary()
     assert summary == expected_summary_dict
@@ -564,20 +554,22 @@ def test_get_summary(optimised_job, expected_summary_dict):
         })
     ],
 )
+# Testing the optimisation by whole rooms summary
 def test_room_optimise_get_summary(optimised_job, expected_summary_dict):
     summary = optimised_job.get_summary()
     for key in list(summary.keys()):
         assert summary[key] == pytest.approx(expected_summary_dict[key], 0.01)
 
-# total prices surface1=62 surface2=77.87 surface3=210.03 surface4=40.87 approx
-        # areas of surfaces 1,2,3,4 respectively 8 10 20 1
+# global variables below to use in the test for the optimisation by condition priority
 
 condition_optimisation_test_painting_surface = core.PaintingSurface(core.Wall(8, substrate=core.PrePaintedEmulsion(
     condition='poor')), core.Paint(30, 5, 17))
 condition_optimisation_test_painting_surface_2 = core.PaintingSurface(core.Wall(10, substrate=core.PrePaintedEmulsion(
     condition='poor')), core.MattEmulsionPaint())
-condition_optimisation_test_painting_surface_3 = core.PaintingSurface(core.Wall(20, substrate=core.Plaster()), core.DiamondMattEmulsion())
-condition_optimisation_test_painting_surface_4 = core.PaintingSurface(core.Skirtingboard(1, substrate=core.Mdf(primed=True)), core.OilEggshell())
+condition_optimisation_test_painting_surface_3 = core.PaintingSurface(
+    core.Wall(20, substrate=core.Plaster()), core.DiamondMattEmulsion())
+condition_optimisation_test_painting_surface_4 = core.PaintingSurface(
+    core.Skirtingboard(1, substrate=core.Mdf(primed=True)), core.OilEggshell())
 
 room_3 = core.Room([condition_optimisation_test_painting_surface, condition_optimisation_test_painting_surface_2])
 room_4 = core.Room([condition_optimisation_test_painting_surface_3, condition_optimisation_test_painting_surface_4])
@@ -599,6 +591,7 @@ job_2 = core.Job([room_3, room_4])
         })
     ],
 )
+# Testing the optimisation by condition gives the correct summary dictionary
 def test_room_optimise_get_summary(optimised_job, expected_summary_dict):
     summary = optimised_job.get_summary()
     for key in list(summary.keys()):
